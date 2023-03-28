@@ -39,20 +39,7 @@ public class Main {
             curGcd = mathFunction(curGcd,treeDist[idx]);
         }
 
-        long result = 0;
-        int treePointIdx = 0;
-        long start = treePoint[0];
-        for(long idx=start; idx<treePoint[treeCnt-1]; idx=idx+curGcd) {
-
-            // 해당 위치에 나무가 이미있는 경우
-            if(treePoint[treePointIdx]==idx) {
-                treePointIdx++;
-                continue;
-            }
-
-            // 해당 위치에 나무가 없는 경우
-            result += 1;
-        }
+        long result = (treePoint[treeCnt-1]-treePoint[0])/curGcd - treeCnt+1;
 
         // 결과 출력
         System.out.println(result);
