@@ -1,38 +1,49 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.math.BigInteger;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+	static StringBuilder sb = new StringBuilder();
 
-        // 케이스 수 입력
-        int caseNum = Integer.parseInt(br.readLine());
+	public static void find(long n) {
+		long check = 0;
 
-        // 케이스 수만큼 수행
-        for(int caseIdx=0; caseIdx<caseNum; caseIdx++) {
+		while (true) {
 
-            // 정수 입력
-            BigInteger nextPrimeNumber = new BigInteger(br.readLine());
+			if (n < 2) {
+				sb.append(2 + "\n");
+				break;
+			}
 
-            // 현재 숫자 소수 판별
-            if(nextPrimeNumber.isProbablePrime(10)) {
-                sb.append(nextPrimeNumber).append("\n");
-            }
+			for (long i = 2; i * i <= n; i++) {
+				if (n % i == 0) {
+					check = 1;
+					break;
+				}
+			}
+			if (check == 0) {
+				sb.append(n + "\n");
+				break;
+			}
+			check = 0;
+			n++;
+		}
+	}
 
-                // 아닌 경우 다음 소수 찾기
-            else {
-                sb.append(nextPrimeNumber.nextProbablePrime()).append("\n");
-            }
-        }
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        // 결과 출력
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
-    }
+		long T = Long.valueOf(br.readLine());
+
+		for (long i = 0; i < T; i++) {
+			find(Long.valueOf(br.readLine()));
+		}
+
+		bw.write(sb.toString());
+		bw.flush();
+		bw.close();
+	}
 }
