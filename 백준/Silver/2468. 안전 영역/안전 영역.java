@@ -1,4 +1,3 @@
-import java.awt.geom.Area;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
@@ -55,7 +54,12 @@ public class Main {
                 int nextY = curY + dy[dir];
                 int nextX = curX + dx[dir];
 
-                if(nextX<0 || nextX>areaSize-1 || nextY<0 || nextY>areaSize-1 || rainHeight>=area[nextY][nextX] || visited[nextY][nextX])
+                // 영역 범위를 자체를 벗어난 경우
+                if(nextX<0 || nextX>areaSize-1 || nextY<0 || nextY>areaSize-1)
+                    continue;
+                
+                // 영역이 잠긴 경우, 이미 방문한 경우
+                if(rainHeight>=area[nextY][nextX] || visited[nextY][nextX])
                     continue;
 
                 // 탐색 조건에 부합하는 영역 추가
@@ -88,7 +92,7 @@ public class Main {
         // 비의 양 늘리면서 영역 확인
         rainHeight = minRain;
         maxSafeArea = 0;
-        while(true) {
+        while(minRain!=maxRain) {
 
             // 종료 조건
             if(rainHeight==maxRain)
