@@ -47,10 +47,10 @@ public class Main {
     // 방문 여부 배열
     public static boolean visited[][][];
     // 방향 벡터
-    public static int hDy[] = {-1, 1, -2, 2, -2, 2, -1, 1};
-    public static int hDx[] = {-2, -2, -1, -1, 1, 1, 2, 2};
-    public static int dy[] = {1, 0, -1, 0};
-    public static int dx[] = {0, 1, 0 ,-1};
+    public static int hDy[] = {-2,-1,1,2,2,1,-1,-2};
+    public static int hDx[] = {1,2,2,1,-1,-2,-2,-1};
+    public static int dy[] = {0,1,0,-1};
+    public static int dx[] = {1,0,-1,0};
     // 경로 저장 큐
     public static Queue<TripNode> nodes;
 
