@@ -6,21 +6,17 @@ public class Main {
 	public static void main(String[] args) {
 		
 		Scanner sc = new Scanner(System.in);
+		StringBuilder sb = new StringBuilder();
 		
 		// 연산의 개수 입력
 		int operationCnt = sc.nextInt();
 		
 		// 우선 순위 큐 만들기
 		PriorityQueue<Integer> priQ = new PriorityQueue<>((o1,o2) -> {
-            
-            // 절대값 비교
 			if(Math.abs(o1)<Math.abs(o2))
 				return -1;
-            
-            // 절대값이 같은 경우
 			else if(Math.abs(o1)==Math.abs(o2))
 				return o1-o2;
-            
 			return 1;
 		});
 		
@@ -32,14 +28,15 @@ public class Main {
 			// 명렁이 0인 경우
 			if(order==0) {
 				
-                // 비었다면 0 출력
-				if(priQ.isEmpty()) System.out.println(0);
+				if(priQ.isEmpty()) sb.append(0);
 				
 				else {
 					
 					// 만약 절대값이 같은 경우
-					System.out.println(priQ.poll());
+					sb.append(priQ.poll());
 				}
+				
+				sb.append("\n");
 			}
 			
 			// 아닌 경우
@@ -47,5 +44,8 @@ public class Main {
 				priQ.offer(order);
 			}
 		}
+        
+        // 결과 출력
+        System.out.println(sb.toString());
 	}
 }
