@@ -1,61 +1,51 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.PriorityQueue;
-
-class DisitNum implements Comparable<DisitNum> {
-    private int absNumber;
-    private int number;
-
-    public DisitNum(int number) {
-        this.absNumber = Math.abs(number);
-        this.number = number;
-    }
-
-    public int getNumber() {
-        return this.number;
-    }
-
-    public int compareTo(DisitNum other) {
-        if(this.absNumber < other.absNumber)
-            return -1;
-
-        else if(other.absNumber == this.absNumber) {
-            if(this.number < other.number)
-                return -1;
-        }
-
-        return 1;
-    }
-}
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        PriorityQueue<DisitNum> priQ = new PriorityQueue<>();
-
-        // 연산의 개수 입력
-        int opCnt = Integer.parseInt(br.readLine());
-
-        // 연산의 수만큼 수행
-        int num = 0;
-        for(int idx=0; idx<opCnt; idx++) {
-            num = Integer.parseInt(br.readLine());
-
-            // 0이 아닌 경우
-            if(num!=0)
-                priQ.offer(new DisitNum(num));
-
-            // 0인 경우
-            else {
-                // 비어있을 경우
-                if(priQ.isEmpty())
-                    System.out.println(0);
-                // 안 비었을 경우
-                else {
-                    DisitNum temp = priQ.poll();
-                    System.out.println(temp.getNumber());
-                }
-            }
-        }
-    }
+	public static void main(String[] args) {
+		
+		Scanner sc = new Scanner(System.in);
+		
+		// 연산의 개수 입력
+		int operationCnt = sc.nextInt();
+		
+		// 우선 순위 큐 만들기
+		PriorityQueue<Integer> priQ = new PriorityQueue<>((o1,o2) -> {
+            
+            // 절대값 비교
+			if(Math.abs(o1)<Math.abs(o2))
+				return -1;
+            
+            // 절대값이 같은 경우
+			else if(Math.abs(o1)==Math.abs(o2))
+				return o1-o2;
+            
+			return 1;
+		});
+		
+		// 연산 수행
+		for(int i=0; i<operationCnt; i++) {
+			
+			int order = sc.nextInt();
+			
+			// 명렁이 0인 경우
+			if(order==0) {
+				
+                // 비었다면 0 출력
+				if(priQ.isEmpty()) System.out.println(0);
+				
+				else {
+					
+					// 만약 절대값이 같은 경우
+					System.out.println(priQ.poll());
+				}
+			}
+			
+			// 아닌 경우
+			else {
+				priQ.offer(order);
+			}
+		}
+	}
 }
