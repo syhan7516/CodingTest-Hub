@@ -5,81 +5,84 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    // 접시 수, 종류 수, 연속 수, 쿠폰 번호
-    public static int dishCnt, kinds, k, coupon;
-    // 해시 셋
-    public static HashSet<Integer> set;
-    // 회전 벨트 배열
-    public static int belt[];
-    // 초밥 개수 배열
-    public static int cnt[];
-    // 결과
-    public static int result;
-
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-
-        // 접시 수, 종류 수, 연속 수, 쿠폰 번호 입력
-        st = new StringTokenizer(br.readLine());
-        dishCnt = Integer.parseInt(st.nextToken());
-        kinds = Integer.parseInt(st.nextToken());
-        k = Integer.parseInt(st.nextToken());
-        coupon = Integer.parseInt(st.nextToken());
-
-        // 초밥 벨트 채우기
-        belt = new int[dishCnt];
-
-        for(int d=0; d<dishCnt; d++) {
-            belt[d] = Integer.parseInt(br.readLine());
-        }
-
-        // 초기 셋팅
-        result = -1;
-        set = new HashSet<>();
-        cnt = new int[kinds+1];
-
-        for(int d=0; d<k; d++) {
-            set.add(belt[d]);
-            cnt[belt[d]]++;
-        }
-
-        // 쿠폰 초밥이 존재하는 경우
-        if(cnt[coupon]>0) {
-            result = Math.max(result,set.size());
-        }
-        else {
-            result = Math.max(result,set.size()+1);
-        }
-
-        // 초밥 확인
-        for(int d=1; d<dishCnt; d++) {
-
-            // 범위 설정
-            int start = d;
-            int end = d+k-1;
-
-            // 끝 범위가 벗어나는 경우
-            if(end>=dishCnt) end -= dishCnt;
-
-            // 종류 확인 - 삭제
-            cnt[belt[start-1]]--;
-            if(cnt[belt[start-1]]==0) set.remove(belt[start-1]);
-
-            // 종류 확인 - 추가
-            set.add(belt[end]);
-            cnt[belt[end]]++;
-
-            // 쿠폰 초밥이 존재하는 경우
-            if(cnt[coupon]>0) {
-                result = Math.max(result,set.size());
-            }
-            else {
-                result = Math.max(result,set.size()+1);
-            }
-        }
-
-        // 결과 출력
-        System.out.println(result);
-    }
+	// 접시의 수, 가지 수, 연속 수, 쿠폰 번호, 결과
+	public static int dishCnt, kindCnt, sNum, cNum, result;
+	// 벨트
+	public static int belt[];
+	// 중복 여부 확인 해시셋
+	public static HashSet<Integer> set;
+	// 초밥 개수 배열
+	public static int nums[];
+	
+	// 벨트 위 초밥 확인 메서드
+	static void solve() {
+		
+		// 초기 시작 벨트 설정
+		for(int i=0; i<sNum; i++) {
+			set.add(belt[i]);
+			nums[belt[i]]++;
+		}
+		
+		// 쿠폰 초밥 추가
+		if(nums[cNum]==0) result = Math.max(result, set.size()+1);
+		else result = Math.max(result, set.size());
+		
+		// 포인터 설정
+		int firPoint = 0;
+		int secPoint = sNum;
+		
+		// 벨트를 옮기며 확인
+		for(int i=0; i<dishCnt; i++) {
+			
+			// 이전 초밥 제거
+			nums[belt[firPoint]]--;
+			if(nums[belt[firPoint]]==0) 
+				set.remove(belt[firPoint]);
+				
+			// 이후 초밥 추가
+			nums[belt[secPoint%dishCnt]]++;
+			set.add(belt[secPoint%dishCnt]);
+			
+			// 쿠폰 초밥 추가
+			if(nums[cNum]==0) result = Math.max(result, set.size()+1);
+			else result = Math.max(result, set.size());
+			
+			// 포인터 이동
+			firPoint++;
+			secPoint++;
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		
+		// 접시의 수, 가지 수, 연속 수, 쿠폰 번호 입력
+		st = new StringTokenizer(br.readLine());
+		dishCnt = Integer.parseInt(st.nextToken());
+		kindCnt = Integer.parseInt(st.nextToken());
+		sNum = Integer.parseInt(st.nextToken());
+		cNum = Integer.parseInt(st.nextToken());
+		
+		// 벨트 생성
+		belt = new int[dishCnt];
+		
+		// 초밥 정보 입력
+		for(int i=0; i<dishCnt; i++) {
+			belt[i] = Integer.parseInt(br.readLine());
+		}
+		
+		// 해시셋 생성
+		set = new HashSet<>();
+		
+		// 초밥 개수 배열 생성
+		nums = new int[kindCnt+1];
+		
+		// 벨트 위 초밥 확인
+		result = 0;
+		solve();
+		
+		// 결과 출력
+		System.out.println(result);
+	}
 }
