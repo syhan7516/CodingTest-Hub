@@ -3,121 +3,117 @@ import java.io.InputStreamReader;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-// 엣지 클래스
+// 간선 클래스
 class Edge implements Comparable<Edge> {
-    private int startNode;
-    private int endNode;
-    private int value;
-
-    public Edge(int startNode, int endNode, int value) {
-        this.startNode = startNode;
-        this.endNode = endNode;
-        this.value = value;
-    }
-
-    public int getStartNode() {
-        return this.startNode;
-    }
-
-    public int getEndNode() {
-        return this.endNode;
-    }
-
-    public int getValue() {
-        return this.value;
-    }
-
-    public int compareTo(Edge other) {
-        if(this.value<other.value)
-            return -1;
-        return 1;
-    }
+	int start;
+	int end;
+	int value;
+	
+	public Edge(int start, int end, int value) {
+		this.start = start;
+		this.end = end;
+		this.value = value;
+	}
+	
+	public int compareTo(Edge other) {
+		return this.value-other.value;
+	}
 }
 
 public class Main {
+	
+	// 정점 개수, 간선 개수, 결과
+	public static int v,e;
+	public static long result;
+	// 간선 가중치 정렬을 위한 우선 순위 큐
+	public static PriorityQueue<Edge> priQ;
+	// 대표 번호 배열 
+	public static int parents[];
+	
+	// find
+	static int find(int a) {
+		
+		// 자기 자신과 동일한 경우
+		if(parents[a]==a) return a;
+		
+		// 아닐 경우
+		return parents[a] = find(parents[a]);
+	}
+	
+	// union
+	static void union(int a, int b) {
+		
+		// 각각 대표 번호 찾기
+		a = find(a);
+		b = find(b);
+		
+		// 집합 합치기
+		parents[b] = a;
+	}
+	
+	// MST 구하기 메서드
+	static void solve() {
+		
+		// 대표 번호 배열 생성
+		parents = new int[v+1];
+		
+		// 대표 번호 배열 초기화
+		for(int i=1; i<=v; i++)
+			parents[i] = i;
+		
+		// 현재 연결된 간선 수
+		int cnt = 0;
+	
+		// 간선 확인하기
+		while(!priQ.isEmpty()) {
+			
+			// 간선 연결이 완료된 경우
+			if(cnt==v-1) break;
+			
+			// 확인할 간선
+			Edge curEdge = priQ.poll();
+			
+			// 싸이클 확인
+			if(find(curEdge.start)==find(curEdge.end)) continue;
+			
+			// 간선 합치기
+			union(curEdge.start,curEdge.end);
+			
+			// 정점 개수 추가
+			cnt++;
+			
+			// 비용 추가
+			result += curEdge.value;
+		}
+	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
 
-    // 정점의 개수, 간선의 개수, 결과
-    public static int vCnt, eCnt, result;
-    // 우선 순위 큐
-    public static PriorityQueue<Edge> priQ;
-    // 대표 번호 배열
-    public static int path[];
+        // 정점 개수, 간선 개수 입력
+        st = new StringTokenizer(br.readLine());
+        v = Integer.parseInt(st.nextToken());
+        e = Integer.parseInt(st.nextToken());
 
-    // union 함수
-    static void union(int firNode, int secNode) {
-        int firRoot = find(firNode);
-        int secRoot = find(secNode);
-        path[secRoot] = firRoot;
-    }
-
-    // find 함수
-    static int find(int node) {
-        if(path[node]==node)
-            return node;
-
-        return path[node] = find(path[node]);
-    }
-
-    // 크루스칼
-    static void kruskal() {
-
-        // 유니온 파인트 초기화
-        path = new int[vCnt+1];
-        for(int p=1; p<=vCnt; p++)
-            path[p] = p;
-
-        // 간선의 현재 연결 수, 결과 초기화
-        int count = 0;
-        result = 0;
-
-        while(!priQ.isEmpty()) {
-            // 모든 간선 연결 시 종료
-            if(count==vCnt-1)
-                break;
-
-            // 간선 꺼내기
-            Edge curEdge = priQ.poll();
-            int curStartNode = curEdge.getStartNode();
-            int curEndNode = curEdge.getEndNode();
-            int curValue = curEdge.getValue();
-
-            // 싸이클 확인
-            if(find(curStartNode)==find(curEndNode))
-                continue;
-
-            // 간선 연결
-            union(curStartNode,curEndNode);
-            result += curValue;
-
-            // 간선 수 증가
-            count += 1;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
-        // 정점의 개수, 간선의 개수 입력
-        vCnt = Integer.parseInt(st.nextToken());
-        eCnt = Integer.parseInt(st.nextToken());
-
-        // 간선 정렬
+        // 우선 순위 큐 생성
         priQ = new PriorityQueue<>();
 
-        // 간선의 정보 입력
-        for(int e=0; e<eCnt; e++) {
+        // 간선 정보 입력
+        for(int i=0; i<e; i++) {
             st = new StringTokenizer(br.readLine());
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
             int value = Integer.parseInt(st.nextToken());
-            priQ.offer(new Edge(start,end,value));
+            priQ.offer(new Edge(from,to,value));
         }
 
-        // 크루스칼
-        kruskal();
-
-        // 결과 출력
-        System.out.println(result);
-    }
+        // MST 구하기
+        result = 0;
+        solve();
+		
+		// 결과 출력
+		System.out.println(result);
+	}
 }
