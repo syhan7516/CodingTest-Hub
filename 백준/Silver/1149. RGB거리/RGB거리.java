@@ -3,53 +3,59 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws Exception{
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-
-        // 집의 수 입력
-        int houseCnt = Integer.parseInt(br.readLine());
-
-        // 기본 셋팅
-        int house[][] = new int[houseCnt+1][3];
-
-        // 각 집의 페인트 비용 입력
-        for(int h=1; h<houseCnt+1; h++) {
-            st = new StringTokenizer(br.readLine());
-            house[h][0] = Integer.parseInt(st.nextToken());
-            house[h][1] = Integer.parseInt(st.nextToken());
-            house[h][2] = Integer.parseInt(st.nextToken());
-        }
-
-        // 페인트 칠하기
-        int result = Integer.MAX_VALUE;
-        
-        // 각 첫 집을 색칠할 색을 위해 반복문 3번
-        for(int rgb=0; rgb<3; rgb++) {
-            
-            // 각 색깔별로 DP 테이블 생성
-            int DP[][] = new int[houseCnt+1][3];
-            // 해당 색깔 첫 집 칠하기 (나머지는 임의의 많은 값으로 설정)
-            for(int a=0; a<3; a++) {
-                if(rgb==a)
-                    DP[1][a] = house[1][a];
-                else
-                    DP[1][a] = (int)1e9;
-            }
-
-            // 비용을 더 싸게 칠하기
-            for(int b=2; b<=houseCnt; b++) {
-                DP[b][0] = house[b][0] + Math.min(DP[b-1][1],DP[b-1][2]);
-                DP[b][1] = house[b][1] + Math.min(DP[b-1][0],DP[b-1][2]);
-                DP[b][2] = house[b][2] + Math.min(DP[b-1][0],DP[b-1][1]);
-            }
-
-            // 최소 비용 갱신
-            int curResult = Math.min(DP[houseCnt][0],Math.min(DP[houseCnt][1],DP[houseCnt][2]));
-            result = Math.min(result,curResult);
-        }
-
-        // 결과 출력
-        System.out.println(result);
-    }
+	
+	// 집의 수, 결과
+	public static int homeCnt, result;
+	
+	// 색깔 비용 배열
+	public static int color[][];
+	
+	// 집에 대한 색깔 비용 배열
+	public static int DP[][];
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		
+		// 집의 수 입력
+		homeCnt = Integer.parseInt(br.readLine());
+		
+		// 색깔 비용 배열 생성
+		color = new int[homeCnt+1][4];
+		
+		// 색깔 비용 입력
+		for(int i=1; i<=homeCnt; i++) {
+			st = new StringTokenizer(br.readLine());
+			for(int j=1; j<=3; j++) {
+				color[i][j] = Integer.parseInt(st.nextToken());
+			}
+		}
+		
+		// 집에 대한 색깔 비용 배열
+		DP = new int[homeCnt+1][4];
+		
+		// 첫 집 색칠하기
+		DP[1][1] = color[1][1];
+		DP[1][2] = color[1][2];
+		DP[1][3] = color[1][3];
+		
+		// 집 색칠하기
+		for(int i=2; i<=homeCnt; i++) {
+			
+			// 빨간색으로 색칠하기
+			DP[i][1] = Math.min(color[i][1]+DP[i-1][2],color[i][1]+DP[i-1][3]);
+			
+			// 초록색으로 색칠하기
+			DP[i][2] = Math.min(color[i][2]+DP[i-1][1],color[i][2]+DP[i-1][3]);
+			
+			// 파란색으로 색칠하기
+			DP[i][3] = Math.min(color[i][3]+DP[i-1][1],color[i][3]+DP[i-1][2]);
+		}
+		
+		// 최소 비용 결과 저장
+		result = Math.min(DP[homeCnt][1],Math.min(DP[homeCnt][2],DP[homeCnt][3]));
+		
+		// 결과 출력
+		System.out.println(result);
+	}
 }
