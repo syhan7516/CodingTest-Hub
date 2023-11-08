@@ -1,50 +1,56 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    // 총 개수, 선택 개수
-    public static int totalCnt, selectCnt;
+    // 결과 저장
+    public static StringBuilder sb = new StringBuilder();
 
-    // 결과 배열
-    public static int result[];
+    // 중복 확인 해시
+    public static HashMap<String,Boolean> visited;
 
-    // 숫자 선택하기 함수
-    static void solve(int number, int idx) {
+    // 수의 개수, 선택할 수
+    public static int numCnt, selectCnt;
 
-        // 종료 조건
-        if(idx==selectCnt) {
-            for(int p: result)
-                System.out.print(p+" ");
-            System.out.println();
+    // 중복 순열
+    static void solve(int cnt, int idx, String nums) {
+
+        // 수를 다 고른 경우
+        if(cnt==selectCnt) {
+
+            // 중복이 아닌 경우
+            if(!visited.containsKey(nums)) {
+                sb.append(nums).append("\n");
+                visited.put(nums,true);
+            }
             return;
         }
 
-        // 탐색 진행
-        for(int n=number; n<=totalCnt; n++) {
-            result[idx] = n;
-            solve(n,idx+1);
-        }
+        // 수를 덜 고른 경우
+        for(int i=idx; i<=numCnt; i++)
+            solve(cnt+1,i,nums+i+" ");
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 총 개수, 선택 개수 입력
+        // 수의 개수, 선택할 수 입력
         st = new StringTokenizer(br.readLine());
-        totalCnt = Integer.parseInt(st.nextToken());
+        numCnt = Integer.parseInt(st.nextToken());
         selectCnt = Integer.parseInt(st.nextToken());
 
-        // 결과 배열
-        result = new int[selectCnt];
+        // 중복 확인 해쉬
+        visited = new HashMap<>();
 
-        // 숫자 선택하기
-        int idx=0;
-        for(int n=1; n<=totalCnt; n++) {
-            result[idx] = n;
-            solve(n,idx+1);
-        }
+        // 중복 순열
+        for(int i=1; i<=numCnt; i++)
+            solve(1,i,i+" ");
+
+        // 결과 출력
+        System.out.println(sb.toString());
     }
 }
