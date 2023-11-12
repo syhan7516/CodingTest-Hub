@@ -1,69 +1,62 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    // 총 개수, 선택 개수
-    public static int totalCnt, selectCnt;
-    // 숫자 배열
-    public static int nums[];
-    // 결과 배열
-    public static int result[];
-    // 방문 배열
-    public static boolean visited[];
-    // 결과 저장
+    // 결과
     public static StringBuilder sb = new StringBuilder();
 
-    // 숫자 선택하기 함수
-    static void solve(int idx, int depth) {
+    // 수의 개수, 선택할 수의 개수
+    public static int numCnt, selectCnt;
 
-        // 종료 조건
-        if(depth==selectCnt) {
-            for(int p: result)
-                sb.append(p+" ");
+    // 수 배열, 선택된 수 배열
+    public static int nums[];
+    public static int select[];
+
+    // 수 나열 메서드
+    static void solve(int idx, int cnt) {
+
+        // 수가 다 선택된 경우
+        if(cnt==selectCnt) {
+            for(int data: select)
+                sb.append(data).append(" ");
             sb.append("\n");
             return;
         }
 
-        // 탐색 진행
-        for(int n=idx; n<totalCnt; n++) {
-            result[depth] = nums[n];
-            solve(n,depth+1);
+        // 수가 덜 선택된 경우z
+        for(int i=idx; i<numCnt; i++) {
+            select[cnt] = nums[i];
+            solve(i,cnt+1);
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 총 개수, 선택 개수 입력
+        // 수의 개수, 선택할 수의 개수 입력
         st = new StringTokenizer(br.readLine());
-        totalCnt = Integer.parseInt(st.nextToken());
+        numCnt = Integer.parseInt(st.nextToken());
         selectCnt = Integer.parseInt(st.nextToken());
 
-        // 요소 정보 입력
-        nums = new int[totalCnt];
+        // 수 배열 생성
+        nums = new int[numCnt];
+        select = new int[selectCnt];
 
+        // 수 정보 입력
         st = new StringTokenizer(br.readLine());
-        for(int n=0; n<totalCnt; n++) {
-            nums[n] = Integer.parseInt(st.nextToken());
-        }
+        for(int i=0; i<numCnt; i++)
+            nums[i] = Integer.parseInt(st.nextToken());
 
-        // 결과 배열
-        result = new int[selectCnt];
-
-        // 숫자 정렬
+        // 정렬
         Arrays.sort(nums);
 
-        // 숫자 선택하기
-        int depth=0;
-        visited = new boolean[totalCnt];
-        for(int n=0; n<totalCnt; n++) {
-            result[depth] = nums[n];
-            solve(n,depth+1);
-        }
+        // 수 나열
+        solve(0,0);
 
         // 결과 출력
         System.out.println(sb.toString());
