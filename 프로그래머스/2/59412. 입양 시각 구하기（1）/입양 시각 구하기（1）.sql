@@ -1,5 +1,5 @@
-select HOUR(datetime) hour, count(HOUR(datetime)) count
+select HOUR(datetime) hour, count(*) count
 from animal_outs
-where HOUR(datetime) >= 9 and HOUR(datetime) < 20
 group by hour
+having hour between 9 and 19
 order by hour;
