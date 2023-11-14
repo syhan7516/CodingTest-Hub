@@ -1,142 +1,116 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
-// 벨트 클래스
 class Belt {
-    private boolean robot;
-    private int life;
 
-    public Belt(boolean robot, int life) {
-        this.robot = robot;
-        this.life = life;
-    }
+    // 로봇 여부, 내구도
+    boolean isRobot;
+    int durability;
 
-    public boolean getRobot() {
-        return this.robot;
-    }
-
-    public int getLife() {
-        return this.life;
-    }
-
-    public void changeRobot() {
-        this.robot = !robot;
-    }
-
-    public void changeLife() {
-        this.life -= 1;
+    public Belt(boolean isRobot, int durability) {
+        this.isRobot = isRobot;
+        this.durability = durability;
     }
 }
 
 public class Main {
 
-    // 로봇 올리기 함수
-    static void raiseRobot() {
-        Belt curBelt = beltList.get(0);
+    // 벨트 리스트
+    public static ArrayList<Belt> belts;
 
-        // 내구도 점검하기
-        if((curBelt.getLife()!=0)) {
-            curBelt.changeRobot();
-            curBelt.changeLife();
+    // 벨트 길이, 종료 조건, 현재 멈춘 벨트 개수, 작동 횟수
+    public static int beltLen, beltStopCnt, curBeltStop, term;
 
-            // 내구도 0인지 확인
-            if(curBelt.getLife()==0)
-                curDurability += 1;
-        }
-    }
-
-    // 내리는 구간 확인 함수
-    static void checkGetOffBelt() {
-        Belt curBelt = beltList.get(beltLen-1);
-
-        // 로봇 점검하기
-        if(curBelt.getRobot()) {
-            curBelt.changeRobot();
-        }
-    }
-
-    // 로봇 옆으로 이동 함수
-    static void moveRobot() {
-
-        // 벨트 전체 확인
-        for(int b=beltLen-2; b>=0; b--) {
-            Belt curBelt = beltList.get(b);
-            Belt nextBelt = beltList.get((b+1));
-
-            // 현재 벨트에 로봇 존재 & 다음 벨트에 로봇이 없으면서 내구도가 존재할 경우
-            if(curBelt.getRobot() && !nextBelt.getRobot() && nextBelt.getLife()!=0) {
-
-                // 로봇 이동
-                curBelt.changeRobot();
-                nextBelt.changeRobot();
-
-                // 로봇이 이동한 벨트 내구도 감소
-                nextBelt.changeLife();
-
-                // 이동된 벨트 내구도 0인지 확인
-                if(nextBelt.getLife()==0)
-                    curDurability += 1;
-            }
-        }
-    }
-
-    // 컨베이어 벨트 길이, 내구도 제한 개수, 현재 내구도 현황, 현재 단계 수
-    public static int beltLen, durability, curDurability, curStage;
-
-    // 벨트 정보 리스트
-    public static ArrayList<Belt> beltList;
-
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
-        // 컨베이어 벨트 길이, 내구도 제한 개수 입력
-        beltLen = Integer.parseInt(st.nextToken());
-        durability = Integer.parseInt(st.nextToken());
-
-        // 벨트 생성
-        beltList = new ArrayList<>();
-
-        // 각 벨트 정보 입력
-        st = new StringTokenizer(br.readLine());
-        for(int b=0; b<beltLen*2; b++) {
-            int n = Integer.parseInt(st.nextToken());
-            beltList.add(new Belt(false,n));
-        }
-
-        // 작업 수행
-        curDurability = 0;
-        curStage = 0;
+    // 컨베이어 벨트 작동 메서드
+    static void solve() {
 
         while(true) {
 
-            // 단계 증가
-            curStage += 1;
-
             // 벨트 회전
-            Collections.rotate(beltList,1);
+            Collections.rotate(belts,1);
 
-            // 내리는 구간 확인
-            checkGetOffBelt();
+            // 로봇 마지막에 있으면 내리기
+            if(belts.get(beltLen-1).isRobot) {
+                belts.get(beltLen-1).isRobot = false;
+            }
 
-            // 로봇 옆으로 이동
-            moveRobot();
+            // 로봇 이동
+            for(int i=beltLen-2; i>0; i--) {
+                // 현재 벨트 정보
+                Belt curBelt = belts.get(i);
 
-            // 내리는 구간 확인
-            checkGetOffBelt();
+                // 현재 벨트에 로봇이 없는 경우
+                if(!curBelt.isRobot) continue;
+                
+                // 다음 벨트가 내구도가 있으면서 로봇이 없는 경우
+                if(!belts.get(i+1).isRobot && belts.get(i+1).durability>0) {
+                    curBelt.isRobot = false;
+                    belts.get(i+1).isRobot = true;
+                    belts.get(i+1).durability--;
 
-            // 로봇 올리기
-            raiseRobot();
+                    // 내구도 0일 경우 멈추기
+                    if(belts.get(i+1).durability==0) {
+                        curBeltStop++;
 
-            // 현재 내구도 확인
-            if(curDurability>=durability)
-                break;
+                        // 종료 조건 도달한 경우
+                        if(beltStopCnt==curBeltStop) return;
+                    }
+                }
+            }
+
+            // 로봇 마지막에 있으면 내리기
+            if(belts.get(beltLen-1).isRobot) {
+                belts.get(beltLen-1).isRobot = false;
+            }
+
+            // 올리는 위치 확인
+            if(belts.get(0).durability>0) {
+                belts.get(0).isRobot = true;
+                belts.get(0).durability--;
+
+                // 내구도 0일 경우 멈추기
+                if(belts.get(0).durability==0) {
+                    curBeltStop++;
+
+                    // 종료 조건 도달한 경우
+                    if(beltStopCnt==curBeltStop) return;
+                }
+            }
+
+            // 작동 횟수 증가
+            term++;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 벨트 길이, 종료 조건 입력
+        st = new StringTokenizer(br.readLine());
+        beltLen = Integer.parseInt(st.nextToken());
+        beltStopCnt = Integer.parseInt(st.nextToken());
+
+        // 벨트 생성
+        belts = new ArrayList<>();
+
+        // 벨트 정보 입력
+        st = new StringTokenizer(br.readLine());
+        for(int i=0; i<beltLen*2; i++) {
+            int curDurability = Integer.parseInt(st.nextToken());
+            belts.add(new Belt(false,curDurability));
         }
 
+        // 컨베이어 벨트 작동
+        curBeltStop = 0;
+        term = 1;
+        solve();
+
         // 결과 출력
-        System.out.println(curStage);
+        System.out.println(term);
     }
 }
