@@ -1,87 +1,96 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-    // 결과, 총 인원 수 입력
-    public static int result, totalCnt;
-    // 팀 능력치 배열
+
+    // 사람 수, 결과, 한 팀의 멤버 수
+    public static int saramCnt, answer, memberCnt;
+
+    // 선택된 선수 정보 배열
+    public static boolean visited[];
+
+    // 능력치 배열
     public static int ability[][];
-    // 팀 표시 배열
-    public static boolean teamCheck[];
 
-    // 능력치 차이
-    static void getDiffAbility() {
-        // 각 팀의 총점
-        int abilityA = 0;
-        int abilityB = 0;
-        for(int a=0; a<totalCnt-1; a++) {
-            for(int b=a+1; b<totalCnt; b++) {
-                if(teamCheck[a]==true && teamCheck[b]==true) {
-                    abilityA += (ability[a][b] + ability[b][a]);
-                    continue;
-                }
+    // 팀 구성하기 메서드
+    static void solve(int idx, int cnt) {
 
-                if(teamCheck[a]==false && teamCheck[b]==false) {
-                    abilityB += (ability[a][b] + ability[b][a]);
+        // 팀이 다 구성된 경우
+        if(cnt==memberCnt) {
+
+            // 팀
+            ArrayList<Integer> team1 = new ArrayList<>();
+            ArrayList<Integer> team2 = new ArrayList<>();
+
+            for(int i=0; i<saramCnt; i++) {
+                if(visited[i]) team1.add(i);
+                else team2.add(i);
+            }
+
+            int teamAbility1 = 0;
+            int teamAbility2 = 0;
+
+            for(int i=0; i<team1.size()-1; i++) {
+                for(int j=i+1; j<team1.size(); j++) {
+                    int a = team1.get(i);
+                    int b = team1.get(j);
+                    teamAbility1 += (ability[a][b]+ability[b][a]);
                 }
             }
-        }
 
-        // 두 팀의 능력치 차이
-        int diff = Math.abs(abilityA-abilityB);
+            for(int i=0; i<team2.size()-1; i++) {
+                for(int j=i+1; j<team2.size(); j++) {
+                    int a = team2.get(i);
+                    int b = team2.get(j);
+                    teamAbility2 += (ability[a][b]+ability[b][a]);
+                }
+            }
 
-        // 차이가 0인 경우
-        if(diff == 0) {
-            System.out.println(diff);
-            System.exit(0);
-        }
+            // 결과 갱신
+            answer = Math.min(answer,Math.abs(teamAbility1-teamAbility2));
 
-        // 가장 박빙인 능력치 저장
-        result = Math.min(result,diff);
-    }
-
-    // 팀 배정 함수
-    static void playerTrade(int depth, int a) {
-        // 인원 수만큼 뽑았을 경우
-        if(depth==totalCnt/2) {
-            getDiffAbility();
             return;
         }
 
-        // 팀 배정
-        for(int trade=a; trade<totalCnt; trade++) {
-            teamCheck[trade] = true;
-            playerTrade(depth+1,trade+1);
-            teamCheck[trade] = false;
+        // 덜 구성된 경우
+        for(int i=idx; i<saramCnt; i++) {
+            if(!visited[i]) {
+                visited[i] = true;
+                solve(i+1,cnt+1);
+                visited[i] = false;
+            }
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st;
 
-        // 결과
-        result = Integer.MAX_VALUE;
+        // 사람 수 입력
+        saramCnt = Integer.parseInt(br.readLine());
 
-        // 총 인원 수 입력
-        totalCnt = Integer.parseInt(st.nextToken());
-        teamCheck = new boolean[totalCnt];
+        // 능력치 배열 생성
+        ability = new int[saramCnt][saramCnt];
 
-        // 능력치 입력
-        ability = new int[totalCnt][totalCnt];
-        for(int row=0; row<totalCnt; row++) {
+        // 능력치 정보 입력
+        for(int i=0; i<saramCnt; i++) {
             st = new StringTokenizer(br.readLine());
-            for(int col=0; col<totalCnt; col++) {
-                ability[row][col] = Integer.parseInt(st.nextToken());
+            for(int j=0; j<saramCnt; j++) {
+                ability[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        // 팀 배정
-        int depth = 0;
-        playerTrade(depth,0);
+        // 팀 구성하기
+        memberCnt = saramCnt/2;
+        visited = new boolean[saramCnt];
+        answer = (int)1e9;
+        solve(0,0);
 
         // 결과 출력
-        System.out.println(result);
+        System.out.println(answer);
     }
 }
