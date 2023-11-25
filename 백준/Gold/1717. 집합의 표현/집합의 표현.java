@@ -1,53 +1,75 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static int find(int group[], int node) {
-        if(group[node]==node) {
-            return node;
-        }
-        else {
-            return group[node] = find(group,group[node]);
-        }
+    // 집합의 수, 연산의 개수
+    public static int numCnt, operationCnt;
+
+    // 대표 번호 배열
+    public static int parent[];
+
+    // find
+    static int find(int number) {
+
+        // 자기 자신의 경우
+        if(parent[number]==number)
+            return number;
+
+        // 아닌 경우
+        return parent[number] = find(parent[number]);
     }
 
-    static void union(int group[], int firNode, int secNode) {
-        int firNodeRoot = find(group,firNode);
-        int secNodeRoot = find(group,secNode);
-        group[firNodeRoot] = secNodeRoot;
+    // union
+    static void union(int a, int b) {
+
+        int n1 = find(a);
+        int n2 = find(b);
+
+        if(n1<n2) parent[n2] = n1;
+        else parent[n1] = n2;
     }
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        // 집합의 수, 연산의 개수 입력
+        st = new StringTokenizer(br.readLine());
+        numCnt = Integer.parseInt(st.nextToken());
+        operationCnt = Integer.parseInt(st.nextToken());
 
-        // 숫자 수 & 연산 수 입력
-        int numbers = scanner.nextInt();
-        int opCount = scanner.nextInt();
-
-        // 각 집합 초기화
-        int group[] = new int[numbers+1];
-        for(int idx=0; idx<numbers+1; idx++) {
-            group[idx] = idx;
-        }
+        // 대표 번호 배열 생성
+        parent = new int[numCnt+1];
+        for(int i=0; i<=numCnt; i++)
+            parent[i] = i;
 
         // 연산 수행
-        for(int idx=0; idx<opCount; idx++) {
-            int op = scanner.nextInt();
-            int firNode = scanner.nextInt();
-            int secNode = scanner.nextInt();
-            // 합집합
-            if(op==0) {
-                union(group,firNode,secNode);
+        for(int i=1; i<=operationCnt; i++) {
+            st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+
+            // 합하는 경우
+            if(a==0) {
+                union(b,c);
             }
-            // 집합 확인
+
+            // 포함여부 확인의 경우
             else {
-                int firGroup = find(group,firNode);
-                int secGroup = find(group,secNode);
-                if(firGroup==secGroup)
-                    System.out.println("YES");
+                if(find(b)==find(c))
+                    sb.append("yes");
                 else
-                    System.out.println("NO");
+                    sb.append("no");
+
+                sb.append("\n");
             }
         }
+
+        // 결과 출력
+        System.out.println(sb.toString());
     }
 }
