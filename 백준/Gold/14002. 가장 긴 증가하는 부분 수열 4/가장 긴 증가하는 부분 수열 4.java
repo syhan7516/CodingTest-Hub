@@ -1,60 +1,82 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
         StringTokenizer st;
 
-        // 수열의 개수 입력
-        int numsLen = Integer.parseInt(br.readLine());
+        // 수열의 크기 입력
+        int size = Integer.parseInt(br.readLine());
 
-        // 수열, DP 저장 배열 선언
-        int nums[] = new int[numsLen+1];
-        int DP[] = new int[numsLen+1];
+        // 수열 저장 배열
+        int nums[] = new int[size];
 
-        // 수열 요소 입력
+        // 수열 정보 입력
         st = new StringTokenizer(br.readLine());
-        for(int n=1; n<=numsLen; n++) {
-            nums[n] = Integer.parseInt(st.nextToken());
+        for(int i=0; i<size; i++) {
+            nums[i] = Integer.parseInt(st.nextToken());
         }
 
-        // 부분 수열 확인
-        int maxLen = 0;
+        // LIS 배열 생성
+        int DP[] = new int[size];
 
-        for(int a=1; a<=numsLen; a++) {
-            DP[a] = 1;
-            for(int b=0; b<a; b++) {
-                if(nums[a]>nums[b]) {
-                    DP[a] =  Math.max(DP[a],DP[b]+1);
-                    maxLen = Math.max(DP[a],maxLen);
+        // 이전 수 찾기 배열
+        int pre[] = new int[size];
+
+        // 결과
+        int len = 1;
+        int lastNum = 0;
+
+        // LIS 구하기
+
+        // 초기 값
+        DP[0] = 1;
+        pre[0] = 0;
+
+        for(int i=1; i<size; i++) {
+
+            // 기준 수
+            int current = nums[i];
+            DP[i] = 1;
+            pre[i] = i;
+
+            // 비교
+            for(int j=i-1; j>=0; j--) {
+
+                // 자신보다 작은 수이면서 갱신 가능한 경우
+                if(nums[j]<current && DP[i]<DP[j]+1) {
+                    DP[i] = DP[j]+1;
+                    pre[i] = j;
                 }
             }
-        }
 
-        // 최장 길이 저장
-        sb.append(maxLen+"\n");
-
-        // 최장 길이 원소들 저장
-        Stack<Integer> result = new Stack<>();
-
-        for(int s=numsLen; s>0; s--) {
-            if(DP[s]==maxLen) {
-                result.push(nums[s]);
-                maxLen--;
+            // 결과 갱신
+            if(len<DP[i]) {
+                len = DP[i];
+                lastNum = i;
             }
-        }
-
-        // 결과 저장
-        while(!result.isEmpty()) {
-            sb.append(result.pop()+" ");
         }
 
         // 결과 출력
-        System.out.println(sb.toString());
+        System.out.println(len);
+        Stack<Integer> stack = new Stack<>();
+        while(true) {
+
+            if(lastNum==pre[lastNum]) {
+                stack.push(nums[lastNum]);
+                break;
+            }
+
+            stack.push(nums[lastNum]);
+            lastNum = pre[lastNum];
+        }
+
+        while(!stack.isEmpty()) {
+            System.out.print(stack.pop()+" ");
+        }
     }
 }
