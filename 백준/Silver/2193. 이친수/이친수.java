@@ -1,24 +1,29 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 public class Main {
-    public static void main(String args[]) throws Exception{
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        
-        int N = Integer.parseInt(br.readLine());
-        
-        long DP[] = new long[N+1];
-        
-        // 기본 셋팅
-        DP[0] = 0;
+
+        // 정수 입력
+        int number = Integer.parseInt(br.readLine());
+
+        // 이친수 배열 생성
+        long DP[] = new long[91];
+
+        // 이친수 기본 정보 저장
         DP[1] = 1;
-        
-        // N까지 확인 
-        for (int idx=2; idx<=N; idx++){
-            DP[idx] = DP[idx-1]+DP[idx-2];
+        DP[2] = 1;
+        DP[3] = 2;
+
+        // 이친수 정보 구하기
+        for(int i=4; i<91; i++) {
+            DP[i] = DP[i-1]+DP[i-2];
         }
-        
+
         // 결과 출력
-        System.out.println(DP[N]);
+        System.out.println(DP[number]);
     }
 }
