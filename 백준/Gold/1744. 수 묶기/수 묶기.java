@@ -1,136 +1,64 @@
-
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.Collections;
+import java.util.PriorityQueue;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         // 수열의 크기 입력
-        int setSize = Integer.parseInt(br.readLine());
+        int size = Integer.parseInt(br.readLine());
 
-        // 수열 만들기
-        int nums[] = new int[setSize];
-        for(int n=0; n<setSize; n++) {
-            nums[n] = Integer.parseInt(br.readLine());
+        // 수열 정보 우선 순위 큐 생성
+        PriorityQueue<Integer> plus = new PriorityQueue<>(Collections.reverseOrder());
+        PriorityQueue<Integer> minus = new PriorityQueue<>();
+
+        // 결과
+        int answer = 0;
+
+        // 수열 정보 입력
+        for(int i=0; i<size; i++) {
+            int num = Integer.parseInt(br.readLine());
+
+            // 1, 양수, 0과 음수 따로 저장
+            if(num==1) answer += 1;
+            else if(num>0) plus.offer(num);
+            else minus.offer(num);
+        }
+        
+        // 연산을 수행 할 두 수
+        int first = 0;
+        int second = 0;
+
+        // 양수 수열 확인
+        while(plus.size()>1) {
+
+            // 수 꺼내기
+            first = plus.poll();
+            second = plus.poll();
+
+            // 곱해서 더하기
+            answer += (first*second);
         }
 
-        // 수열 정렬
-        Arrays.sort(nums);
+        // 음수 수열 확인
+        while(minus.size()>1) {
 
-        // 수열 합구하기
-        Stack<Long> stack = new Stack<>();
-        int secPoint = nums.length-2;
-        stack.push((long) nums[secPoint+1]);
+            // 수 꺼내기
+            first = minus.poll();
+            second = minus.poll();
 
-        // 기본 셋팅
-        int curNum = 0;
-        long stackNum = 0;
-        boolean operator = true;
-
-        // 양수 처리
-        while(true) {
-            // 종료 조건
-            if(secPoint<0)
-                break;
-
-            // 수 하나 가져오기
-            curNum = nums[secPoint];
-
-            // 가져온 수가 음수인 경우
-            if(curNum<0)
-                break;
-
-            // 곱하기 연산 가능할 경우
-            if(operator) {
-
-                // 스택에서 수 꺼내기
-                stackNum = stack.pop();
-
-                long firOp = curNum+stackNum;
-                long secOp = curNum*stackNum;
-
-                // 곱하기가 큰 경우
-                if(firOp<secOp) {
-                    stack.push(secOp);
-                    operator = false;
-                }
-
-                // 더하기가 큰 경우
-                else {
-                    stack.push(stackNum);
-                    stack.push((long)curNum);
-                }
-            }
-
-            // 곱하기 연산 불가능할 경우
-            else {
-                stack.push((long)curNum);
-                operator = true;
-            }
-
-            // 연산 횟수 감소
-            secPoint--;
+            // 곱해서 더하기
+            answer += (first*second);
         }
 
-        // 음수 처리
-        if(curNum<0) {
-            operator = true;
-            int firPoint = 0;
-            stack.push((long) nums[firPoint]);
-            firPoint++;
+        // 큐에 수가 남은 경우
+        if(!plus.isEmpty()) answer += plus.poll();
+        if(!minus.isEmpty()) answer += minus.poll();
 
-            while(true) {
-                // 종료 조건
-                if(firPoint>=nums.length)
-                    break;
-
-                // 수 하나 가져오기
-                curNum = nums[firPoint];
-
-                // 가져온 수가 양수인 경우
-                if(curNum>0)
-                    break;
-
-                // 곱하기 연산 가능할 경우
-                if(operator) {
-
-                    // 스택에서 수 꺼내기
-                    stackNum = stack.pop();
-
-                    long firOp = curNum+stackNum;
-                    long secOp = curNum*stackNum;
-
-                    // 곱하기가 큰 경우
-                    if(firOp<secOp) {
-                        stack.push(secOp);
-                        operator = false;
-                    }
-
-                    // 더하기가 큰 경우
-                    else {
-                        stack.push(stackNum);
-                        stack.push((long)curNum);
-                    }
-                }
-
-                // 곱하기 연산 불가능할 경우
-                else {
-                    stack.push((long)curNum);
-                    operator = true;
-                }
-
-                // 연산 횟수 감소
-                firPoint++;
-            }
-        }
-
-        // 결과 저장 & 출력
-        long result = 0;
-        for(long element: stack)
-            result += element;
-        System.out.println(result);
+        // 결과 출력
+        System.out.println(answer);
     }
 }
