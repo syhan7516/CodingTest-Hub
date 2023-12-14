@@ -1,84 +1,85 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
+// 선 클래스
 class Line implements Comparable<Line> {
-    private long start;
-    private long end;
+    int start;
+    int end;
 
-    public Line(long start, long end) {
+    public Line(int start, int end) {
         this.start = start;
         this.end = end;
-    }
-
-    public long getStart() {
-        return start;
-    }
-
-    public long getEnd() {
-        return end;
     }
 
     public int compareTo(Line other) {
         if(this.start<other.start)
             return -1;
+        else if(this.start==other.start) {
+            if(this.end<other.end)
+                return -1;
+        }
+
         return 1;
     }
 }
 
 public class Main {
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
         // 선 개수 입력
         int lineCnt = Integer.parseInt(br.readLine());
 
+        // 선 저장 우선 순위 큐 생성
+        PriorityQueue<Line> priQ = new PriorityQueue<>();
+        
         // 선 정보 입력
-        PriorityQueue<Line> lines = new PriorityQueue<>();
-        for(int l=0; l<lineCnt; l++) {
+        for(int i=0; i<lineCnt; i++) {
             st = new StringTokenizer(br.readLine());
-            long start = Integer.parseInt(st.nextToken());
-            long end = Integer.parseInt(st.nextToken());
-            lines.add(new Line(start,end));
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            priQ.offer(new Line(start,end));
         }
-
+        
         // 선 확인
-        Line curLine = lines.poll();
-        long s = curLine.getStart();
-        long e = curLine.getEnd();
-        long result = e-s;
+        long answer = 0;
+        Line current = priQ.poll();
+        int start = current.start;
+        int end = current.end;
+        
+        while(!priQ.isEmpty()) {
+            
+            // 확인 할 선
+            current = priQ.poll();
 
-        while(!lines.isEmpty()) {
+            // 끝이 속하는 경우
+            if(end>=current.end) continue;
 
-            // 선 정보 꺼내기
-            curLine = lines.poll();
-            long curStart = curLine.getStart();
-            long curEnd = curLine.getEnd();
-
-            // 마지막 점 안에 선이 시작점이 들어올 경우
-            if(e>=curStart) {
-
-                // 완전 겹치는 선인 경우
-                if(curEnd<=e)
-                    continue;
-
-                // 완전 겹치지는 않은 경우
-                result += curEnd-e;
-                e = curEnd;
-            }
-
-            // 마지막 점 안에 선이 안들어올 경우
+            // 끝이 넘어서는 경우
             else {
-                result += curEnd-curStart;
-                s = curStart;
-                e = curEnd;
+
+                // 시작이 속하거나 동일한 경우
+                if(end>=current.start) {
+                    end = current.end;
+                }
+
+                // 시작이 끝을 넘어선 경우
+                else {
+                    answer += (end-start);
+                    start = current.start;
+                    end = current.end;
+                }
             }
         }
 
-        // 결과 확인
-        System.out.println(result);
+        // 나머지 선 길이 합치기
+        answer += (end-start);
+
+        // 결과 출력
+        System.out.println(answer);
     }
 }
