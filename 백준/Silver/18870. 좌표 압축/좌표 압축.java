@@ -15,40 +15,35 @@ public class Main {
         // 숫자 정보 저장 배열 생성
         int nums[] = new int[numCnt];
 
-        // 숫자 정보 셋
-        HashSet<Integer> set = new HashSet<>();
-
         // 숫자 정보 입력
         st = new StringTokenizer(br.readLine());
         for(int i=0; i<numCnt; i++) {
             nums[i] = Integer.parseInt(st.nextToken());
-            set.add(nums[i]);
         }
 
-        // 중복 제거
-        ArrayList<Integer> copyNums = new ArrayList<>();
-        for(int data: set) copyNums.add(data);
+        // 숫자 정보 배열 복사
+        int copyNums[] = Arrays.copyOfRange(nums,0,numCnt);
 
-        // 리스트 정렬
-        Collections.sort(copyNums);
+        // 복사 배열 정렬
+        Arrays.sort(copyNums);
 
         // 압축 정보 결과 해시
-        HashMap<Integer,Integer> idx = new HashMap<>();
+        HashMap<Integer,Integer> map = new HashMap<>();
 
         // 좌표 압축
+        int idx = 0;
         for(int i=0; i<numCnt; i++) {
 
-            // 이미 값이 있는 경우
-            if(idx.containsKey(nums[i])) {
-                sb.append(idx.get(nums[i])).append(" ");
-            }
-
             // 값이 없는 경우
-            else {
-                idx.put(nums[i],Collections.binarySearch(copyNums,nums[i]));
-                sb.append(idx.get(nums[i])).append(" ");
+            if(!map.containsKey(copyNums[i])) {
+                map.put(copyNums[i],idx);
+                idx++;
             }
         }
+
+        // 결과 저장
+        for(int data: nums)
+            sb.append(map.get(data)).append(" ");
 
         // 결과 출력
         System.out.println(sb.toString());
