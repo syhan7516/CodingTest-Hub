@@ -1,79 +1,63 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-
-    // 숫자 개수, 좋다 개수
-    public static int numCnt, goodCnt;
-    // 숫자 정보 배열
-    public static long numbers[];
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
         // 숫자 개수 입력
-        numCnt = Integer.parseInt(br.readLine());
+        int numCnt = Integer.parseInt(br.readLine());
+
+        // 숫자 정보 배열 생성
+        int nums[] = new int[numCnt];
 
         // 숫자 정보 입력
-        numbers = new long[numCnt];
         st = new StringTokenizer(br.readLine());
-        for(int idx=0; idx<numCnt; idx++) {
-            numbers[idx] = Integer.parseInt(st.nextToken());
+        for(int i=0; i<numCnt; i++) {
+            nums[i] = Integer.parseInt(st.nextToken());
         }
-        
-        // 숫자 정렬
-        Arrays.sort(numbers);
 
-        // 기본 셋팅
-        goodCnt = 0;
+        // 정렬
+        Arrays.sort(nums);
 
-        // 좋다 수 확인
-        for(int n = 0; n<numbers.length; n++) {
+        // 결과
+        int answer = 0;
 
-            // 투 포인터 위치 설정
-            int firPoint = 0;
-            int secPoint = numbers.length-1;
+        // 좋다 수 찾기
+        for(int i=0; i<numCnt; i++) {
 
-            // 포인터 범위 제한
-            while(firPoint<secPoint) {
+            int left = 0;
+            int right = numCnt-1;
 
-                // 검사 번호 위치와 왼쪽 포인터 위치가 동일한 경우
-                if(firPoint==n)
-                    firPoint++;
+            while(true) {
 
-                // 검사 번호 위치와 오른쪽 포인터 위치가 동일한 경우
-                else if(secPoint==n)
-                    secPoint--;
+                // 자기 자신일 경우
+                if(left==i) left++;
+                if(right==i) right--;
 
-                // 검사 번호 위치와 포인터가 서로 다른 위치일 경우
-                else {
+                // 값이 없는 경우
+                if(left>=right) break;
 
-                    // 현재 가르키는 포인터의 두 값 더하기
-                    long curSum = numbers[firPoint] + numbers[secPoint];
+                // 두 수 더하기
+                int sum = nums[left]+nums[right];
 
-                    // 좋다 수와 같은 경우
-                    if(curSum==numbers[n]) {
-                        goodCnt += 1;
-                        break;
-                    }
-
-                    // 좋다 수보다 작은 경우
-                    else if(curSum<numbers[n]) {
-                        firPoint++;
-                    }
-
-                    // 좋다 수 보다 큰 경우
-                    else {
-                        secPoint--;
-                    }
+                // 비교
+                if(sum==nums[i]) {
+                    answer++;
+                    break;
                 }
+
+                else if(sum>nums[i]) right--;
+
+                else left++;
             }
         }
 
         // 결과 출력
-        System.out.println(goodCnt);
+        System.out.println(answer);
     }
 }
