@@ -1,40 +1,36 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 로그 수 입력
+        // 로그 저장 해시 셋
+        TreeSet<String> set = new TreeSet<>(Collections.reverseOrder());
+
+        // 로그 기록 수 입력
         int logCnt = Integer.parseInt(br.readLine());
 
-        // 사람 정보 해시
-        HashMap<String,String> inout = new HashMap<>();
-
         // 로그 입력
-        for(int l=0; l<logCnt; l++) {
+        for(int i=0; i<logCnt; i++) {
             st = new StringTokenizer(br.readLine());
             String name = st.nextToken();
-            String ox = st.nextToken();
-            inout.put(name,ox);
+            String exist = st.nextToken();
+
+            // 출근
+            if(exist.equals("leave")) set.remove(name);
+
+            // 퇴근
+            else set.add(name);
         }
 
-        // 키 배열
-        String names[] = inout.keySet().toArray(new String[0]);
-        
-        // 이름 역순 정렬
-        Arrays.sort(names);
-        
-        // 역순으로 사람들 확인
-        for(int s=names.length-1; s>=0; s--) {
-            
-            // 출근한 경우
-            if(inout.get(names[s]).equals("enter"))
-                System.out.println(names[s]);
-        }
+        // 로그 확인
+        for(String name: set)
+            System.out.println(name);
     }
 }
