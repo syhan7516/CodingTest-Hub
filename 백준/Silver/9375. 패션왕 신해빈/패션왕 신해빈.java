@@ -1,50 +1,60 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
         // 테스트 케이스 수 입력
         int caseNum = Integer.parseInt(br.readLine());
 
-        // 케이스 수만큼 수행
+        // 케이스 수 만큼 수행
         for(int caseIdx=0; caseIdx<caseNum; caseIdx++) {
 
-            // 옷 종류 개수 입력
-            int kindCnt = Integer.parseInt(br.readLine());
+            // 의상 수 입력
+            int dressCnt = Integer.parseInt(br.readLine());
 
-            // 해시 생성
-            HashMap<String,Integer> cloth = new HashMap<>();
+            // 종류별 개수 해시 생성
+            HashMap<String,Integer> map = new HashMap<>();
 
-            // 옷 종류 입력
-            for(int k=0; k<kindCnt; k++) {
+            // 종류 해시 셋 생성
+            HashSet<String> set = new HashSet<>();
 
+            // 의상 정보 입력
+            for(int i=0; i<dressCnt; i++) {
                 st = new StringTokenizer(br.readLine());
-                st.nextToken();
-                String kinds = st.nextToken();
+                String name = st.nextToken();
+                String kind = st.nextToken();
 
-                // 이미 옷 종류가 존재할 경우
-                if(cloth.containsKey(kinds)) {
-                    cloth.put(kinds, cloth.get(kinds)+1);
+                // 종류가 이미 존재하는 경우
+                if(set.contains(kind)) {
+                    map.put(kind, map.get(kind)+1);
                 }
-                // 아닌 경우
+
+                // 종류가 없는 경우
                 else {
-                    cloth.put(kinds, 1);
+                    set.add(kind);
+                    map.put(kind,1);
                 }
             }
 
-            // 옷 확인
-            int result = 1;
-            for(int element: cloth.values()) {
-                result *= element+1;
+            // 조합 확인
+            int combination = 1;
+            for(String dress : set) {
+                combination = combination*(map.get(dress)+1);
             }
 
-            // 결과 출력
-            System.out.println(result-1);
+            // 결과 저장
+            sb.append(combination-1).append("\n");
         }
+
+        // 결과 출력
+        System.out.println(sb.toString());
     }
 }
