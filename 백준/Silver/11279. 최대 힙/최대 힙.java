@@ -1,29 +1,42 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-public class Main{
-    public static void main(String[] args) throws Exception {
+public class Main {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        PriorityQueue<Integer> mnq = new PriorityQueue<>(Comparator.reverseOrder());
+        StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
-        int opCnt = Integer.parseInt(st.nextToken());
+        // 연산 개수 입력
+        int cnt = Integer.parseInt(br.readLine());
 
-        for(int idx=0; idx<opCnt; idx++) {
-            int opt = Integer.parseInt(new StringTokenizer(br.readLine()).nextToken());
-            if(opt > 0)
-                mnq.add(opt);
+        // 우선 순위 큐 생성
+        PriorityQueue<Integer> queue = new PriorityQueue<>(Collections.reverseOrder());
+
+        // 연산 입력
+        for(int i=0; i<cnt; i++) {
+            int order = Integer.parseInt(br.readLine());
+
+            // 0
+            if(order==0) {
+                if(!queue.isEmpty())
+                    sb.append(queue.poll());
+                else sb.append(0);
+
+                sb.append("\n");
+            }
+
+            // 숫자
             else {
-                if(mnq.isEmpty())
-                    System.out.println(0);
-                else {
-                    System.out.println(mnq.peek());
-                    mnq.poll();
-                }
+                queue.offer(order);
             }
         }
+
+        // 결과 출력
+        System.out.println(sb.toString());
     }
 }
