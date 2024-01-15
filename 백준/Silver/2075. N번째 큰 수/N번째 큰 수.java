@@ -1,45 +1,34 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-public class Main {
-    public static void main(String[] args) throws Exception {
+public class Main{
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 우선순위 큐
-        PriorityQueue<Integer> priQ = new PriorityQueue<>();
+        // 크기 입력
+        int size = Integer.parseInt(br.readLine());
 
-        // 표의 크기 입력
-        int chart = Integer.parseInt(br.readLine());
+        // 우선 순위 큐 생성
+        PriorityQueue<Integer> queue = new PriorityQueue<>(Collections.reverseOrder());
 
-        // 표의 수 입력
-        for(int row=0; row<chart; row++) {
+        // 숫자 입력
+        for(int i=0; i<size; i++) {
             st = new StringTokenizer(br.readLine());
-            for(int col=0; col<chart; col++) {
-                int number = Integer.parseInt(st.nextToken());
-                priQ.offer(-number);
+            for(int j=0; j<size; j++) {
+                queue.offer(Integer.parseInt(st.nextToken()));
             }
         }
 
-        // 큰 수 찾기
-        int result = 0;
-        int count = 0;
-        while(true) {
-
-            // 큰 수 꺼내기
-            int num = priQ.poll();
-            count += 1;
-
-            // 차례인 경우
-            if(count == chart) {
-                result = -num;
-                break;
-            }
-        }
+        // N번째 큰 수 구하기
+        for(int i=0; i<size-1; i++)
+            queue.poll();
 
         // 결과 출력
-        System.out.println(result);
+        System.out.println(queue.poll());
     }
 }
