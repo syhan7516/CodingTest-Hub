@@ -1,124 +1,119 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
-
-class Human {
-    private int num;
-    private int cnt;
-
-    public Human(int num, int cnt) {
-        this.num = num;
-        this.cnt = cnt;
-    }
-
-    public int getNum() {
-        return num;
-    }
-
-    public int getCnt() {
-        return cnt;
-    }
-}
+import java.util.*;
 
 public class Main {
 
-    // 회원 인원 수
-    public static int human;
-    // 회원 인원 관계 리스트
-    public static ArrayList<ArrayList<Integer>> relation;
-    // 방문 여부 배열
+    // 회원 수, 결과
+    public static int clientCnt, answer;
+
+    // 방문 여부
     public static boolean visited[];
-    // 점수
-    public static int score;
-    // 각 후보 점수 저장 배열, 결과
-    public static int [] scores, result;
 
-    // bfs
-    static void bfs(int client) {
-        Queue<Human> humans = new LinkedList<>();
-        score = 0;
-        visited = new boolean[human+1];
-        int memberCnt = human;
-        humans.offer(new Human(client,0));
-        visited[client] = true;
-        memberCnt--;
+    // 친구 관계 리스트
+    public static ArrayList<ArrayList<Integer>> list;
 
-        while(!humans.isEmpty()) {
-            // 현재 인원 확인
-            Human curHuman = humans.poll();
-            int curNum = curHuman.getNum();
-            int curCnt = curHuman.getCnt();
+    // 후보 리스트
+    public static ArrayList<Integer> result;
 
-            for(int h=0; h<relation.get(curNum).size(); h++) {
-                int connectRel = relation.get(curNum).get(h);
-                if(!visited[connectRel]) {
-                    visited[connectRel] = true;
-                    humans.offer(new Human(connectRel,curCnt+1));
-                    memberCnt--;
-                    // 모든 인원이 확인된 경우
-                    if(memberCnt==0) {
-                        score = curCnt+1;
-                        return;
-                    }
+    // 점수 매기기 메서드
+    static void solve(int saram) {
+
+        // 관계 저장 큐 생성
+        Queue<Integer> queue = new LinkedList<>();
+
+        // 첫 사람 처리
+        visited[saram] = true;
+        queue.offer(saram);
+
+        // 현재 깊이 친구 수, 점수
+        int size = 1;
+        int score = 0;
+
+        // 관계 확인
+        while(!queue.isEmpty()) {
+
+            // 현재 깊이 친구 수를 다 본 경우
+            if(size==0) {
+                size = queue.size();
+                score++;
+            }
+
+            // 확인 할 사람
+            int current = queue.poll();
+
+            // 기준 관계 확인
+            for(int i=0; i<list.get(current).size(); i++) {
+
+                // 친구
+                int friend = list.get(current).get(i);
+
+                // 미방문인 경우
+                if(!visited[friend]) {
+                    visited[friend] = true;
+                    queue.offer(friend);
                 }
             }
+
+            // 감소
+            size--;
+        }
+
+        // 후보 갱신
+        if(answer>=score) {
+
+            // 점수가 더 낮은 경우
+            if(answer>score) {
+                result = new ArrayList<>();
+                answer = score;
+            }
+
+            // 후보 추가
+            result.add(saram);
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
         // 회원 수 입력
-        human = Integer.parseInt(br.readLine());
+        clientCnt = Integer.parseInt(br.readLine());
 
         // 관계 리스트 생성
-        relation = new ArrayList<>();
-        for(int r=0; r<=human; r++)
-            relation.add(new ArrayList<>());
+        list = new ArrayList<>();
+        for(int i=0; i<=clientCnt; i++)
+            list.add(new ArrayList<>());
 
         // 관계 입력
         while(true) {
-
-            // 입력
             st = new StringTokenizer(br.readLine());
-            int first = Integer.parseInt(st.nextToken());
-            int second = Integer.parseInt(st.nextToken());
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
 
-            // 종료 조건
-            if(first==-1 && second==-1)
-                break;
+            // -1, -1 인 경우
+            if(from==-1 && to==-1) break;
 
-            relation.get(first).add(second);
-            relation.get(second).add(first);
+            // 관계 추가
+            list.get(from).add(to);
+            list.get(to).add(from);
         }
 
-        // 관계 확인
-        scores = new int[human+1];
-        result = new int[2];
-        result[1] = Integer.MAX_VALUE;
-        for(int r=1; r<=human; r++) {
-            bfs(r);
-            scores[r] = score;
-
-            // 후보 갱신
-            if(result[1]>=score) {
-                if(result[1]>score) {
-                    result[1] = score;
-                    result[0] = 1;
-                }
-                else result[0]++;
-            }
+        // 점수 매기기
+        answer = Integer.MAX_VALUE;
+        result = null;
+        for(int i=1; i<=clientCnt; i++) {
+            visited = new boolean[clientCnt+1];
+            solve(i);
         }
 
         // 결과 출력
-        System.out.println(result[1]+" "+result[0]);
-        for(int h=1; h<=human; h++) {
-            if(scores[h]==result[1])
-                System.out.print(h+" ");
-        }
+        sb.append(answer).append(" ").append(result.size()).append("\n");
+        Collections.sort(result);
+        for(int data: result)
+            sb.append(data).append(" ");
+        System.out.println(sb.toString());
     }
 }
