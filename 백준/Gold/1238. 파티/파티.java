@@ -1,136 +1,124 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-// 시티 노드 클래스
-class CityNode implements Comparable<CityNode> {
-    private int node;
-    private int dist;
+// 간선 클래스
+class Edge implements Comparable<Edge> {
+    int to;
+    int dist;
 
-    public CityNode(int node, int dist) {
-        this.node = node;
+    public Edge(int to, int dist) {
+        this.to = to;
         this.dist = dist;
     }
 
-    public int getNode() {
-        return this.node;
-    }
-
-    public int getDist() {
-        return this.dist;
-    }
-
-    public int compareTo(CityNode other) {
-        if(this.dist < other.dist)
-            return -1;
-        return 1;
+    public int compareTo(Edge other) {
+        return this.dist-other.dist;
     }
 }
 
 public class Main {
 
-    // 도시의 개수, 도로 수, 파티 도시, 최장 거리
-    public static int MAX_ROAD = (int)1e9;
-    public static int cityCnt, roadCnt, partyCity, result;
+    // 도시 수, 도로 수, 목적지, 결과
+    public static int cityCnt, roadCnt, destination, answer;
 
-    // 도시 최단 거리 배열
-    public static int generalPath[];
+    // 연결 관계 리스트
+    public static ArrayList<ArrayList<Edge>> relation;
+    public static ArrayList<ArrayList<Edge>> reverseRelation;
+
+    // 최단 거리 배열
+    public static int path[];
     public static int reversePath[];
 
-    // 도시 방문 여부 배열
-    public static boolean pathVisited[];
-    public static boolean reverseVisited[];
+    // 파티 메서드
+    static void party(ArrayList<ArrayList<Edge>> roadRelation, int roadPath[]) {
 
-    // 거리 정보 인접 리스트
-    public static ArrayList<ArrayList<CityNode>> generalNodes;
-    public static ArrayList<ArrayList<CityNode>> reverseNodes;
+        // 최단 거리를 위한 우선 순위 큐 생성
+        PriorityQueue<Edge> queue = new PriorityQueue<>();
 
-    // 다익스트라 함수
-    static void dijistra(int start, int path[], boolean visited[], ArrayList<ArrayList<CityNode>> nodes) {
-        PriorityQueue<CityNode> priQ = new PriorityQueue<>();
-        path[start] = 0;
-        priQ.offer(new CityNode(start,path[start]));
+        // 첫 노드 처리
+        roadPath[destination] = 0;
+        queue.offer(new Edge(destination,roadPath[destination]));
 
-        // 큐가 비었을 때까지 반복
-        while(!priQ.isEmpty()) {
-            // 큐에서 노드 꺼내기
-            CityNode node = priQ.poll();
-            int nowNode = node.getNode();
-            int nowDist = node.getDist();
+        // 최단 거리 구하기
+        while(!queue.isEmpty()) {
 
-            // 이미 방문한 노드인 경우
-            if(visited[nowNode]==true)
-                continue;
+            // 현재 위치
+            Edge current = queue.poll();
 
-            // 방문 처리
-            visited[nowNode] = true;
+            // 연결된 도로 확인
+            for(int r=0; r<roadRelation.get(current.to).size(); r++) {
 
-            // 해당 노드와 인접한 노드 확인
-            for(int idx=0; idx<nodes.get(nowNode).size(); idx++) {
-                CityNode tempNode = nodes.get(nowNode).get(idx);
-                int vertex = tempNode.getNode();
-                int cost = tempNode.getDist();
+                Edge connect = roadRelation.get(current.to).get(r);
 
-                // 최단 경로 테이블 갱신
-                if(path[vertex] > nowDist+cost)
-                    path[vertex] = nowDist+cost;
-
-                // 큐에 삽입
-                priQ.offer(new CityNode(vertex,path[vertex]));
+                // 확인한 거리가 더 짧은 경우
+                if(roadPath[connect.to]>roadPath[current.to]+connect.dist) {
+                    roadPath[connect.to] = roadPath[current.to]+connect.dist;
+                    queue.offer(new Edge(connect.to,roadPath[connect.to]));
+                }
             }
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+    // 파티 열기 메서드
+    static int solve() {
 
-        // 도시의 개수, 도로 수, 파티 도시 입력
+        // 파티 가기
+        party(reverseRelation,reversePath);
+
+        // 집에 오기
+        party(relation,path);
+
+        // 왕복 거리가 가장 긴 학생 구하기
+        int maxDist = 0;
+        for(int i=1; i<=cityCnt; i++)
+            maxDist = Math.max(maxDist,path[i]+reversePath[i]);
+
+        return maxDist;
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 도시 수, 도로 수 입력
+        st = new StringTokenizer(br.readLine());
         cityCnt = Integer.parseInt(st.nextToken());
         roadCnt = Integer.parseInt(st.nextToken());
-        partyCity = Integer.parseInt(st.nextToken());
+        destination = Integer.parseInt(st.nextToken());
 
-        // 기본 설정 초기화
-        generalPath = new int[cityCnt+1];
-        reversePath = new int[cityCnt+1];
-        Arrays.fill(generalPath,MAX_ROAD);
-        Arrays.fill(reversePath,MAX_ROAD);
-
-        pathVisited = new boolean[cityCnt+1];
-        reverseVisited = new boolean[cityCnt+1];
-
-        generalNodes = new ArrayList<>();
-        reverseNodes = new ArrayList<>();
-        for(int idx=0; idx<=cityCnt; idx++) {
-            generalNodes.add(new ArrayList<>());
-            reverseNodes.add(new ArrayList<>());
+        // 관계 리스트 생성, 초기화
+        relation = new ArrayList<>();
+        reverseRelation = new ArrayList<>();
+        for(int i=0; i<=cityCnt; i++) {
+            relation.add(new ArrayList<>());
+            reverseRelation.add(new ArrayList<>());
         }
+
+        // 최단 거리 배열 생성, 초기화
+        path = new int[cityCnt+1];
+        reversePath = new int[cityCnt+1];
+        Arrays.fill(path,(int)1e9);
+        Arrays.fill(reversePath,(int)1e9);
 
         // 도로 정보 입력
-        for(int idx=0; idx<roadCnt; idx++) {
+        for(int i=0; i<roadCnt; i++) {
             st = new StringTokenizer(br.readLine());
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
-            int distance = Integer.parseInt(st.nextToken());
-            generalNodes.get(start).add(new CityNode(end,distance));
-            reverseNodes.get(end).add(new CityNode(start,distance));
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            int value = Integer.parseInt(st.nextToken());
+            relation.get(from).add(new Edge(to,value));
+            reverseRelation.get(to).add(new Edge(from,value));
         }
 
-        // 다익스트라 수행
-        dijistra(partyCity,generalPath,pathVisited,generalNodes);
-        dijistra(partyCity,reversePath,reverseVisited,reverseNodes);
-
-        // 최장 경로 확인
-        result = Integer.MIN_VALUE;
-        for(int p=1; p<=cityCnt; p++) {
-            int total = generalPath[p] + reversePath[p];
-            result = Math.max(result, total);
-        }
+        // 파티 열기
+        answer = solve();
 
         // 결과 출력
-        System.out.println(result);
+        System.out.println(answer);
     }
 }
