@@ -1,57 +1,76 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    public static int cityCount;
-    public static int busCount;
-    public static int road[][];
+    // 최장 경로
+    public static final int MAX = (int)1e9;
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+    // 도시 개수, 버스 개수
+    public static int cityCnt, busCnt;
 
-        // 도시 수 & 버스 수
-        cityCount = scanner.nextInt();
-        busCount = scanner.nextInt();
+    // 최단 경로 배열
+    public static int path[][];
 
-        // 경로 초기화 (자기자신)
-        road = new int[cityCount+1][cityCount+1];
-        for(int a=1; a<=cityCount; a++) {
-            for(int b=1; b<=cityCount; b++) {
-                road[a][b] = 0;
-            }
-        }
+    // 최단 경로 구하기 메서드
+    static void solve() {
 
-        // 경로 초기화 (경로)
-        for(int idx=0; idx<busCount; idx++) {
-            int row = scanner.nextInt();
-            int col = scanner.nextInt();
-            int value = scanner.nextInt();
-            // 초기화된 값이거나, 이전 노선의 입력 값보다 현재 노선 입력 값이 더 작은 경우
-            if(road[row][col]==0 || road[row][col]>value)
-                road[row][col] = value;
-        }
-
-        // 최단 경로 업데이트
-        // a-경로, b-출발, c-도착
-        for(int a=1; a<=cityCount; a++) {
-            for(int b=1; b<=cityCount; b++) {
-                for(int c=1; c<=cityCount; c++) {
-                    if(b!=c && road[b][a]!=0 && road[a][c]!=0) {
-                        if(road[b][c]==0)
-                            road[b][c]=road[b][a]+road[a][c];
-                        else
-                            road[b][c] = Math.min(road[b][c],road[b][a]+road[a][c]);
-                    }
+        for(int i=1; i<=cityCnt; i++) {
+            for(int j=1; j<=cityCnt; j++) {
+                for(int k=1; k<=cityCnt; k++) {
+                    path[j][k] = Math.min(path[j][i]+path[i][k],path[j][k]);
                 }
             }
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 도시 개수 입력
+        cityCnt = Integer.parseInt(br.readLine());
+
+        // 버스 개수 입력
+        busCnt = Integer.parseInt(br.readLine());
+
+        // 최단 경로 배열 생성
+        path = new int[cityCnt+1][cityCnt+1];
+
+        // 최단 경로 배열 초기화
+        for(int i=1; i<=cityCnt; i++) {
+            for(int j=1; j<=cityCnt; j++) {
+                path[i][j] = MAX;
+                if(i==j) path[i][j] = 0;
+            }
+        }
+
+        // 버스 정보 입력
+        for(int i=0; i<busCnt; i++) {
+            st = new StringTokenizer(br.readLine());
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            int dist = Integer.parseInt(st.nextToken());
+            path[from][to] = Math.min(path[from][to],dist);
+        }
+
+        // 최단 경로 구하기
+        solve();
 
         // 결과 출력
-        for(int a=1; a<=cityCount; a++) {
-            for(int b=1; b<=cityCount; b++) {
-                System.out.print(road[a][b]+" ");
+        StringBuilder sb = new StringBuilder();
+        for(int i=1; i<=cityCnt; i++) {
+            for(int j=1; j<=cityCnt; j++) {
+                if(path[i][j]==MAX)
+                    sb.append(0).append(" ");
+                else
+                    sb.append(path[i][j]).append(" ");
             }
-            System.out.println();
+            sb.append("\n");
         }
+
+        System.out.println(sb.toString());
     }
 }
