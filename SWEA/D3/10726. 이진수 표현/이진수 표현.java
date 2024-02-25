@@ -13,25 +13,30 @@ public class Solution {
         int caseNum = Integer.parseInt(br.readLine());
 
         // 케이스 수 만큼 수행
-        for(int caseIdx=0; caseIdx<caseNum; caseIdx++) {
+        for(int caseIdx=1; caseIdx<=caseNum; caseIdx++) {
+
+            sb.append("#").append(caseIdx).append(" ");
+
+            // 확인 여부
+            boolean flag = true;
 
             // N, M 입력
             st = new StringTokenizer(br.readLine());
             int n = Integer.parseInt(st.nextToken());
             int m = Integer.parseInt(st.nextToken());
 
-            // 확인하려는 값
-            int total = (1<<n)-1;
+            // m의 n비트 1인지 확인
+            for(int b=0; b<n; b++) {
+                if((m&(1<<b)) == 0) {
+                    flag = false;
+                    sb.append("OFF").append("\n");
+                    break;
+                }
+            }
 
-            // 확인하기
-            sb.append("#").append(caseIdx+1).append(" ");
-
-            if((m&total)==total)
-                sb.append("ON");
-            else
-                sb.append("OFF");
-
-            sb.append("\n");
+            // 모두 1인 경우
+            if(flag)
+                sb.append("ON").append("\n");
         }
 
         // 결과 출력
