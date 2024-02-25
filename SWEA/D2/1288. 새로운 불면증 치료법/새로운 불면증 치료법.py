@@ -7,36 +7,50 @@ public class Solution {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
 
-        // 구하려는 값
-        int total = (1<<10)-1;
-
         // 테스트 케이스 수 입력
         int caseNum = Integer.parseInt(br.readLine());
 
         // 케이스 수 만큼 수행
-        for(int caseIdx=0; caseIdx<caseNum; caseIdx++) {
+        for(int caseIdx=1; caseIdx<=caseNum; caseIdx++) {
 
-            // 현재까지 구한 값
-            int current = 0;
+            // 체크 현황
+            int visited = 0;
 
-            // 정수 입력
+            // 목표 값
+            int total = (1<<10)-1;
+
+            // 배수
+            int idx = 1;
+
+            // 완료 여부
+            boolean flag = false;
+
+            // 숫자 입력
             int number = Integer.parseInt(br.readLine());
 
-            // 현재 배수
-            int count = 0;
-            for(count=1; ; count++) {
-                char arr[] = String.valueOf(number*count).toCharArray();
-                for(char data: arr) {
-                    int currentNumber = data-'0';
-                    current = current|(1<<currentNumber);
+            while(true) {
+
+                // 숫자 확인
+                char numbers[] = String.valueOf(number*idx).toCharArray();
+
+                for(int i=0; i<numbers.length; i++) {
+                    int n = numbers[i]-'0';
+                    visited = visited | (1<<n);
+
+                    // 체크가 완료된 경우
+                    if(visited==total) {
+                        sb.append("#").append(caseIdx).append(" ").append(number*idx).append("\n");
+                        flag = true;
+                        break;
+                    }
                 }
 
-                // 구하려는 값과 비교
-                if(current==total) break;
-            }
+                // 완료된 경우
+                if(flag) break;
 
-            // 결과 저장
-            sb.append("#").append(caseIdx+1).append(" ").append(number*count).append("\n");
+                // 배수 증가
+                idx++;
+            }
         }
 
         // 결과 출력
