@@ -1,119 +1,158 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+// 노드 클래스
+class Node {
+    int y;
+    int x;
+
+    public Node(int y, int x) {
+        this.y = y;
+        this.x = x;
+    }
+}
 
 public class Main {
 
-	static class Node {
-		int r;
-		int c;
+    // 가로, 세로, 결과
+    public static int rowSize, colSize, answer;
 
-		public Node(int r, int c) {
-			this.r = r;
-			this.c = c;
-		}
-	}
+    // 맵
+    public static char map[][];
 
-	static String ans;
-	static int R, C;
-	static char[][] forest;
-	static int[][] visited;
-	static Queue<Node> water;
-	static Queue<Node> queue;
-	static int[] dr = { 0, 1, 0, -1 };
-	static int[] dc = { 1, 0, -1, 0 };
+    // 물 위치 저장 큐
+    public static Queue<Node> water;
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		ans = "KAKTUS";
+    // 고슴도치 위치 저장 큐
+    public static Queue<Node> animal;
 
-		R = Integer.parseInt(st.nextToken());
-		C = Integer.parseInt(st.nextToken());
-		forest = new char[R][C];
-		visited = new int[R][C];
+    // 네 방향 벡터
+    public static int dy[] = {0,1,0,-1};
+    public static int dx[] = {1,0,-1,0};
 
-		water = new LinkedList<>();
+    // 탈출하기 메서드
+    static void solve() {
 
-		queue = new LinkedList<>();
+        // 방문 여부 배열 생성
+        boolean visited[][] = new boolean[rowSize][colSize];
 
-		for (int r = 0; r < R; r++) {
-			char[] info = br.readLine().toCharArray();
-			for (int c = 0; c < C; c++) {
-				if (info[c] == 'S') {
-					queue.offer(new Node(r, c));
-					visited[r][c] = 1;
-					forest[r][c] = '.';
-				} else {
-					if (info[c] == '*') {
-						water.offer(new Node(r, c));
-					}
-					forest[r][c] = info[c];
-				}
-			}
-		}
+        // 시작 위치 처리
+        visited[animal.peek().y][animal.peek().x] = true;
 
-		bfs();
-//		System.out.println(Arrays.toString(forest[0]));
-//		System.out.println(Arrays.toString(forest[1]));
-//		System.out.println(Arrays.toString(forest[2]));
-//		System.out.println(Arrays.toString(forest[3]));
-//		System.out.println(Arrays.toString(forest[4]));
-//
-//		System.out.println(Arrays.toString(visited[0]));
-//		System.out.println(Arrays.toString(visited[1]));
-//		System.out.println(Arrays.toString(visited[2]));
-//		System.out.println(Arrays.toString(visited[3]));
-//		System.out.println(Arrays.toString(visited[4]));
+        // 거리
+        int dist = 0;
 
-		System.out.println(ans);
+        // 탈출
+        while(!animal.isEmpty()) {
 
-	}
+            // 크기 측정
+            int waterSize = water.size();
+            int animalSize = animal.size();
 
-	static boolean makeWater(int wSize) {
+            // 물 처리
+            while(waterSize-->0) {
 
-		return true;
-	}
+                // 현재 물
+                Node current = water.poll();
 
-	static void bfs() {
-		while (!queue.isEmpty()) {
-			int wSize = water.size();
+                // 네 방향 탐색
+                for(int d=0; d<4; d++) {
+                    int ny = current.y+dy[d];
+                    int nx = current.x+dx[d];
 
-			for (int w = 0; w < wSize; w++) {
-				Node curW = water.poll();
+                    // 범위 확인
+                    if(ny<0 || ny>rowSize-1 || nx<0 || nx>colSize-1) continue;
 
-				for (int i = 0; i < 4; i++) {
-					int nr = curW.r + dr[i];
-					int nc = curW.c + dc[i];
+                    // 돌, 방문 여부, 비버 굴 확인
+                    if(map[ny][nx]=='X' || map[ny][nx]=='*' || map[ny][nx]=='D') continue;
 
-					if (nr >= 0 && nr < R && nc >= 0 && nc < C && forest[nr][nc] == '.') {
-						forest[nr][nc] = '*';
-						water.add(new Node(nr, nc));
-					}
-				}
-			}
-			
-			int fSize = queue.size();
-			for (int f = 0; f < fSize; f++ ) {
-				Node cur = queue.poll();
+                    // 탐색 노드 추가
+                    map[ny][nx] = '*';
+                    water.offer(new Node(ny,nx));
+                }
+            }
 
-				for (int i = 0; i < 4; i++) {
-					int nr = cur.r + dr[i];
-					int nc = cur.c + dc[i];
+            // 고슴도치 처리
+            while(animalSize-->0) {
 
-					if (nr >= 0 && nr < R && nc >= 0 && nc < C && visited[nr][nc] == 0 ) {
-						if (forest[nr][nc] == 'D') {
-							ans = (String.valueOf(visited[cur.r][cur.c]));
-							return;
-						} else if (forest[nr][nc] == '.') {
-							visited[nr][nc] = visited[cur.r][cur.c] + 1;
-							queue.add(new Node(nr, nc));
-						}
-					}
-				}
-				
-			}
-			
+                // 현재 고슴도치
+                Node current = animal.poll();
 
-		}
-	}
+                // 비버 굴 위치인 경우
+                if(map[current.y][current.x]=='D') {
+                    answer = dist;
+                    return;
+                }
+
+                // 네 방향 탐색
+                for(int d=0; d<4; d++) {
+                    int ny = current.y+dy[d];
+                    int nx = current.x+dx[d];
+
+                    // 범위 확인
+                    if(ny<0 || ny>rowSize-1 || nx<0 || nx>colSize-1) continue;
+
+                    // 방문 여부 확인
+                    if(visited[ny][nx]) continue;
+
+                    // 돌, 물인지 확인
+                    if(map[ny][nx]=='X' || map[ny][nx]=='*') continue;
+
+                    // 탐색 노드 추가
+                    visited[ny][nx] = true;
+                    animal.offer(new Node(ny,nx));
+                }
+            }
+
+            // 거리 증가
+            dist++;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 가로, 세로 입력
+        st = new StringTokenizer(br.readLine());
+        rowSize = Integer.parseInt(st.nextToken());
+        colSize = Integer.parseInt(st.nextToken());
+
+        // 큐 생성
+        water = new LinkedList<>();
+        animal = new LinkedList<>();
+
+        // 맵 생성
+        map = new char[rowSize][colSize];
+
+        // 맵 정보 입력
+        for(int i=0; i<rowSize; i++) {
+            String line = br.readLine();
+            for(int j=0; j<colSize; j++) {
+                map[i][j] = line.charAt(j);
+
+                // 물인 경우
+                if(map[i][j]=='*')
+                    water.offer(new Node(i,j));
+
+                // 고슴도치인 경우
+                if(map[i][j]=='S')
+                    animal.offer(new Node(i,j));
+            }
+        }
+
+        // 탈출하기
+        answer = -1;
+        solve();
+
+        // 결과 출력
+        if(answer==-1)
+            System.out.println("KAKTUS");
+        else
+            System.out.println(answer);
+    }
 }
