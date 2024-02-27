@@ -1,126 +1,154 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-    // 이닝수, 총 점수
-    public static int termCnt, totalScore;
-    // 선수 획득 점수 배열
-    public static int playerResult[][];
-    // 선수 배치 배열
-    public static int postition[] = new int[10];
-    // 방문 배열
-    public static boolean visisted[] = new boolean[10];
 
-    // 게임 진행
-    static void gameStart() {
-        int curTerm = 1;
-        int playerNum = 1;
-        boolean ground[] = new boolean[4];
-        int outCnt = 0;
+    // 이닝 수, 결과
+    public static int iningCnt, answer;
+
+    // 이닝 결과 배열
+    public static int iningResult[][];
+
+    // 타자 순서 배열
+    public static int order[];
+
+    // 선택 여부 배열
+    public static boolean visited[];
+
+    // 게임 수행 메서드
+    static void game() {
+
+        // 점수
         int score = 0;
 
-        // 이닝만큼 경기
-        while (curTerm < termCnt+1) {
-            // 플레이어 한 번씩 다 친 경우
-            if (playerNum == 10)
-                playerNum = 1;
-            // 이닝 순서에 맞게 선수 출전
-            int prs = playerResult[curTerm][postition[playerNum]];
+        // 현재 타자
+        int current = 0;
+
+        // 이닝 진행
+        for(int i=1; i<=iningCnt; i++) {
+
             // 아웃
-            if (prs == 0) {
-                outCnt += 1;
-            }
-            // 홈런
-            else if (prs == 4) {
-                for(int g=1; g<4; g++) {
-                    if(ground[g]==true)
-                        score += 1;
+            int outCnt = 0;
+
+            // 경기장 현황
+            boolean status[] = new boolean[4];
+
+            while(true) {
+
+                // 3아웃인 경우
+                if(outCnt==3)
+                    break;
+
+                // 다음 선수
+                current++;
+                if(current>9) current = 1;
+
+                // 진행
+                int res = iningResult[i][order[current]];
+
+                // 0 - 아웃인 경우
+                if(res==0) outCnt++;
+
+                // 4
+                else if(res==4) {
+                    for(int p=3; p>0; p--) {
+
+                        // 타석에 선수가 있는 경우
+                        if(status[p]) score++;
+                        status[p] = false;
+                    }
+                    
+                    // 자기 자신 처리
+                    score++;
                 }
-                Arrays.fill(ground,false);
-                score += 1;
-            }
-            // 안타
-            else {
-                for(int g=3; g>0; g--) {
-                    if(ground[g]==true) {
-                        int result = g + prs;
-                        if(result>3) {
-                            score += 1;
-                            ground[g]=false;
-                        }
-                        else {
-                            ground[g]=false;
-                            ground[result]=true;
+
+                // 1,2,3
+                else {
+                    for(int p=3; p>0; p--) {
+
+                        // 타석에 선수가 있는 경우
+                        if(status[p]) {
+                            
+                            // 이동
+                            status[p] = false;
+                            
+                            // 홈에 들어간 경우
+                            if(p+res>3) score++;
+
+                            // 홈에 못들어간 경우
+                            else status[p+res] = true;
                         }
                     }
+
+                    // 자기 자신 처리
+                    status[res] = true;
                 }
-                ground[prs]=true;
             }
-
-            if (outCnt == 3) {
-                outCnt = 0;
-                curTerm += 1;
-                Arrays.fill(ground, false);
-            }
-
-            playerNum += 1;
         }
 
-        totalScore = Math.max(totalScore,score);
+        // 결과 갱신
+        answer = Math.max(answer,score);
     }
 
-    // 선수 배치 함수
-    static void getPosition(int depth) {
-        if(depth==10) {
-            gameStart();
+    // 타자 순서 배치하기 메서드
+    static void solve(int idx, int cnt) {
+
+        // 다 선택한 경우
+        if(cnt==10) {
+
+            // 게임 수행
+            game();
+
             return;
         }
 
-        if(depth==4) {
-            getPosition(depth+1);
-            return;
-        }
+        // 아닌 경우 - 4번 타자인 경우
+        if(idx==4) solve(idx+1,cnt+1);
 
-        for(int idx=1; idx<=9; idx++) {
-            if(visisted[idx]==false ) {
-                visisted[idx] = true;
-                postition[depth] = idx;
-                getPosition(depth+1);
-                visisted[idx] = false;
+        // 아닌 경 - 그 외 타자인 경우
+        else {
+            for(int i=1; i<10; i++) {
+
+                // 그 외 타자인 경우
+                if(!visited[i]) {
+                    visited[i] = true;
+                    order[idx] = i;
+                    solve(idx+1,cnt+1);
+                    visited[i] = false;
+                }
             }
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st;
 
-        // 이닝수 입력
-        termCnt = Integer.parseInt(st.nextToken());
-        // 점수 입력
-        playerResult = new int[termCnt+1][10];
-        for(int idx=1; idx<=termCnt; idx++) {
+        // 이닝 수 입력
+        iningCnt = Integer.parseInt(br.readLine());
+
+        // 이닝 결과 배열 생성
+        iningResult = new int[iningCnt+1][10];
+
+        // 이닝 결과 입력
+        for(int i=1; i<=iningCnt; i++) {
             st = new StringTokenizer(br.readLine());
-            for(int player=1; player<=9; player++) {
-                playerResult[idx][player] = Integer.parseInt(st.nextToken());
+            for(int j=1; j<10; j++) {
+                iningResult[i][j] = Integer.parseInt(st.nextToken());
             }
         }
-        // 선수 배치
-        visisted[1] = true;
-        postition[4] = 1;
-        int depth = 1;
-        for(int idx=1; idx<=9; idx++) {
-            if(idx==1)
-                continue;
-            visisted[idx] = true;
-            postition[depth] = idx;
-            getPosition(depth+1);
-            visisted[idx] = false;
-        }
+
+        // 타자 순서 배치하기
+        answer = 0;
+        order = new int[10];
+        visited = new boolean[10];
+        order[4] = 1;
+        visited[1] = true;
+        solve(1,1);
 
         // 결과 출력
-        System.out.println(totalScore);
+        System.out.println(answer);
     }
 }
