@@ -8,7 +8,7 @@ class Solution {
     // H-index 찾기 메서드
     static void solve(int[] citations, int start, int end) {
         
-        // 
+        // 이진 탐색 수행
         while(start<=end) {
             
             // 확인 값
@@ -24,12 +24,13 @@ class Solution {
                 if(mid>=citations[i]) b++;
             }
             
-            // 
+            // 조건에 맞는 경우
             if(mid<=a && mid>=b) {
                 answer = mid;
                 start = mid+1;
             }
             
+            // 조건에 맞지 않는 경우
             else 
                 end = mid-1;
         }
