@@ -1,70 +1,67 @@
 import java.util.*;
 
+// 노드 클래스
 class Node {
-    
     int y;
     int x;
-    int dist;
+    int cnt;
     
-    public Node(int y, int x, int dist) {
+    public Node(int y, int x, int cnt) {
         this.y = y;
         this.x = x;
-        this.dist = dist;
+        this.cnt = cnt;
     }
 }
 
 class Solution {
-
+    
+    // 결과
+    public static int answer;
+    
     // 방향 벡터
-    public static int dy[] = {1,0,-1,0};
-    public static int dx[] = {0,-1,0,1};
+    public static int dy[] = {0,1,0,-1};
+    public static int dx[] = {1,0,-1,0};
     
     public int solution(int[][] maps) {
         
-        // 결과
-        int answer = -1;
-        
-        // 맵 크기
-        int n = maps.length;
-        int m = maps[0].length;
-        
-        // 이동 가능한 노드 저장 큐
+        // 노드 저장 큐 생성
         Queue<Node> queue = new LinkedList<>();
         
-        // 첫 노드 처리
+        // 시작 노드 저장
         queue.offer(new Node(0,0,1));
-        maps[0][0] = 0;
+        maps[0][0] = -1;
         
-        // 탐색 시작
+        // 위치 이동
+        answer = -1;
         while(!queue.isEmpty()) {
             
             // 현재 노드
-            Node curNode = queue.poll();
+            Node current = queue.poll();
             
-            // 목적지에 도착한 경우
-            if(curNode.y==n-1 && curNode.x==m-1) {
-                answer = curNode.dist;
+            // 위치에 도달한 경우
+            if(current.y==maps.length-1 && current.x==maps[0].length-1) {
+                answer = current.cnt;
                 break;
             }
             
-            // 방향 확인
+            // 이동 가능한 곳 확인
             for(int d=0; d<4; d++) {
                 
-                int ny = curNode.y+dy[d];
-                int nx = curNode.x+dx[d];
+                // 이동할 곳
+                int ny = current.y + dy[d];
+                int nx = current.x + dx[d];
                 
-                // 범위를 벗어난 경우
-                if(ny<0 || ny>n-1 || nx<0 || nx>m-1)
+                // 범위 확인
+                if(ny<0 || ny>maps.length-1 || nx<0 || nx>maps[0].length-1)
                     continue;
                 
-                // 벽인 경우
-                if(maps[ny][nx]==0)
+                // 이미 방문한 곳 또는 벽인지 확인
+                if(maps[ny][nx]==0 || maps[ny][nx]==-1)
                     continue;
                 
-                // 탐색 가능한 경우
-                queue.offer(new Node(ny,nx,curNode.dist+1));
-                maps[ny][nx] = 0;
-            
+                // 큐에 추가
+                queue.offer(new Node(ny,nx,current.cnt+1));
+                maps[ny][nx] = -1;
             }
         }
         
