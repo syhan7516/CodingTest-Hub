@@ -2,45 +2,53 @@ import java.util.*;
 
 class Solution {
     public int[] solution(int[] progresses, int[] speeds) {
+
+        // 걸리는 일 수, 이전 최대 작업 일 수
+        int days, daysMax = 0;
+    
+        // 프로세스 스택, 배포 큐 생성
+        Stack<Integer> st = new Stack<>();
+        Queue<Integer> queue = new LinkedList<>();
         
-        // 결과 리스트
-        ArrayList<Integer> result = new ArrayList<>();
-        
-        // 우선 순위 작업 포인터
-        int point = 0;
-        
-        while(true) {
+        for(int i=0; i<progresses.length; i++) {
             
-            // 종료 조건
-            if(point>=progresses.length) break;
+            // 완료까지 남은 작업
+            int exist = 100-progresses[i];
             
-            // 진행
-            for(int i=point; i<progresses.length; i++) 
-                progresses[i] += speeds[i];
+            // 예상 일 수
+            days = (exist%speeds[i])==0 ? exist/speeds[i] : exist/speeds[i]+1;
             
-            // 우선 순위 작업 확인
-            int cnt = 0;
-            for(int i=point; i<progresses.length; i++) {
-                
-                // 작업이 미완료인 경우
-                if(progresses[i]<100) break;
-                
-                // 완료인 경우
-                cnt++;
+            // 스택이 빈 경우
+            if(st.isEmpty()) {
+                st.push(days);
+                daysMax = days;
             }
             
-            // 개수 추가
-            if(cnt>0) result.add(cnt);
-            
-            // 포인터 변경
-            point += cnt;
+            // 완료된 작업이 존재하는 경우
+            else {
+                
+                // 현재 개발이 더 오래걸리는 경우
+                if(days>daysMax) {
+                    queue.offer(st.size());
+                    st.clear();
+                    daysMax = days;
+                }
+                
+                st.push(days);
+            }
         }
         
-        // 결과 배열
-        int[] answer = new int[result.size()];
-        for(int i=0; i<result.size(); i++)
-            answer[i] = result.get(i);
+        // 배포할 작업이 남은 경우
+        if(!st.isEmpty()) queue.offer(st.size());
         
+        // 결과
+        int[] answer = new int[queue.size()];
+        
+        int idx = 0;
+        
+        while(!queue.isEmpty())
+            answer[idx++] = queue.poll();
+            
         return answer;
     }
 }
