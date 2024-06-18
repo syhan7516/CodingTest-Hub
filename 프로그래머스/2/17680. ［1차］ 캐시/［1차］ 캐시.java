@@ -3,42 +3,55 @@ import java.util.*;
 class Solution {
     public int solution(int cacheSize, String[] cities) {
         
+        // 캐싱 해시 생성
+        HashMap<String, Boolean> map = new HashMap<>();
+        
         // LRU 리스트 생성
-        ArrayList<String> list = new ArrayList<>();
+        ArrayList<String> lru = new ArrayList<>();
         
         // 결과
         int answer = 0;
         
-        // 캐시가 0인 경우
-        if(cacheSize==0)
-            answer = 5*cities.length;
+        // 캐싱 수행
+        if(cacheSize==0) answer = cities.length*5;
         
-        // 아닌 경우
         else {
             
-            // 캐시 수행
             for(int i=0; i<cities.length; i++) {
                 
-                String findCity = cities[i].toLowerCase();
+                // 소문자 만들기
+                String letter = cities[i].toLowerCase();
+            
+                // 캐싱이 되어있는 경우
+                if(map.getOrDefault(letter,false)) {
 
-                // 도시가 존재하는 경우
-                if(list.contains(findCity)) {
-                    list.remove(findCity);
+                    // HIT
                     answer += 1;
-                }
 
-                // 그 외의 경우
+                    // LRU 최신화
+                    lru.remove(letter);
+                    lru.add(letter);
+                }
+            
+                // 캐싱이 되어있지 않은 경우
                 else {
 
-                    // 캐시가 꽉 찬 경우
-                    if(list.size()==cacheSize) {
-                        list.remove(list.get(0));   
+                    // 가득 찬 경우
+                    if(lru.size()==cacheSize) {
+                        map.remove(lru.get(0));
+                        lru.remove(lru.get(0));
                     }
-                    
-                    answer += 5;
-                }
 
-                list.add(findCity);
+                    // MISS
+                    answer += 5;
+
+                    // LRU 최신화
+                    lru.add(letter);
+
+                    // 해시 최신화
+                    map.put(letter,true);
+
+                }
             }
         }
     
