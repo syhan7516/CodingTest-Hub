@@ -3,15 +3,25 @@ import java.util.*;
 class Solution {
     
     // 소수 확인 메서드
-    static boolean getPrime(long check) {
+    static boolean isPrime(long number) {
         
-        // 1, 2 처리
-        if (check==1) return false;
-        if (check==2) return true;
+        // 1인 경우
+        if(number==1) 
+            return false;
         
-        // 나눠보기
-        for (long i=2; i*i<=check; i++) {
-            if(check%i==0) return false;
+        // 아닌 경우
+        long n = 2;
+        while(true) {
+            
+            // 종료 조건
+            if(n*n>number) break;
+            
+            // 나누어지는 경우
+            if(number%n==0)
+                return false;
+            
+            // 나누는 수 증가
+            n++;
         }
         
         return true;
@@ -19,32 +29,25 @@ class Solution {
     
     public int solution(int n, int k) {
         
-        // 진수 변환
-        String number = Long.toString(n, k);
+        // 결과
+        int answer = 0;
         
-        // 진수 분리하기
-        String nums[] = number.split("0");
+        // k진수화
+        String letter = Integer.toString(n,k);
         
-        // 개수
-        int count = 0;
+        // 숫자 분리
+        String letters[] = letter.split("0");
         
-        // 소수 확인
-        for (String data : nums) {
+        // 숫자 확인
+        for(int i=0; i<letters.length; i++) {
             
             // 공백인 경우
-            if (data.isEmpty() || data.isBlank()) continue;
+            if(letters[i].trim().equals("")) continue;
             
-            // 소수 여부 구하기
-            Long check = Long.parseLong(data);
-            if (getPrime(check)) count++;
+            // 숫자인 경우
+            if(isPrime(Long.parseLong(letters[i]))) answer++;
         }
         
-        // 결과
-        int answer = -1;
-        
-        // 결과 반환
-        if(count!=0)
-            answer = count;
-        return count;
+        return answer;
     }
 }
