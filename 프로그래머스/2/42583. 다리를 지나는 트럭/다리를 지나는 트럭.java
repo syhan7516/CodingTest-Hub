@@ -21,7 +21,7 @@ class Solution {
             // 시간 갱신
             time++;
 
-            // 트럭 이동
+            // 트럭 이동하기
             Collections.rotate(bridge,1);
 
             // 트럭이 끝에 도달한 경우
@@ -31,7 +31,7 @@ class Solution {
                 bridge.set(bridgeLen,0);
             }
 
-            // 다리 위 확인
+            // 다리 위 확인하기
             if(curCar+1<=bridgeLen && curWeight+weights[idx]<=bridgeWeight) {
                 bridge.set(0,weights[idx]);
                 curWeight += weights[idx];
