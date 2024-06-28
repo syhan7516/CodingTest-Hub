@@ -19,7 +19,7 @@ class Solution {
             b = tmp;
         }
         
-        parent[b] = parent[a];
+        parent[b] = a;
     }
     
     // find
