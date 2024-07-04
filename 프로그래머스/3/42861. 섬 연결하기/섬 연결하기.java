@@ -57,17 +57,14 @@ class Solution {
         int values = 0;
         
         // 간선 확인
-        while(!queue.isEmpty()) {
-            
-            // 종료 조건
-            if(cnt==n) return values;
+        while(!queue.isEmpty() || cnt!=n) {
             
             // 현재 확인 간선
             Edge current = queue.poll();
             
             // 만약 연결이 안된 상태인 경우
             if(find(current.start)!=find(current.end)) {
-                
+            
                 // 연결
                 union(current.start, current.end);
                 values += current.value;
@@ -75,7 +72,11 @@ class Solution {
             }
         }
         
-        return values;
+        // 섬을 다 연결한 경우
+        if(cnt==n) return values;
+        
+        // 아닌 경우
+        else return -1;
     }
     
     public int solution(int n, int[][] costs) {
