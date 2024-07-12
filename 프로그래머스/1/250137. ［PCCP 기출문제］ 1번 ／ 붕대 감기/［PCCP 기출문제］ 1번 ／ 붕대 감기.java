@@ -1,40 +1,57 @@
 class Solution {
+    
+    // 회복 시작 시간, 결과
+    public static int answer, start;
+    
+    // 전사 여부
+    public static boolean flag;
+    
+    // 몬스터 공격 시도 메서드
+    static void solve(int[] bandage, int health, int[] attack) {
+        
+        // 회복 지속 시간
+        int healTime = attack[0]-start-1;
+        
+        // 추가 회복 수
+        int term = healTime/bandage[0];
+        
+        // 총 회복량
+        int heal = healTime*bandage[1] + term*bandage[2];
+        
+        // 체력에 반영
+        answer = (answer+heal)<health ? answer+heal : health;
+        
+        // 몬스터 공격 반영
+        if((answer-attack[1])<=0) {
+            answer = -1;
+            flag = true;
+            return;
+        }
+        answer -= attack[1];
+        
+        // 회복 시작 시간 갱신
+        start = attack[0];
+    }
+    
     public int solution(int[] bandage, int health, int[][] attacks) {
         
         // 결과
-        int answer = health;
+        answer = health;
         
-        // 이전 시간
-        int time = 0;
+        // 회복 시작 시간
+        start = 0;
         
-        // 공격 시점 확인
-        for(int t=0; t<attacks.length; t++) {
+        // 전사 여부
+        flag = false;
+        
+        // 몬스터 공격 순회
+        for(int i=0; i<attacks.length; i++) {
             
-            // 시간 계산
-            int timeDiff = attacks[t][0]-time-1;
+            // 몬스터 공격 시도
+            solve(bandage,health,attacks[i]);
             
-            // 체력 회복
-            answer += (timeDiff*bandage[1]);
-            
-            // 추가 회복
-            if(timeDiff>=bandage[0])
-                answer += (timeDiff/bandage[0]*bandage[2]);
-            
-            // 회복 체력이 최대를 넘어선 경우
-            if(answer>health)
-                answer = health;
-            
-            // 받은 피해 계산
-            answer -= attacks[t][1];
-            
-            // 체력이 없는 경우
-            if(answer<=0) {
-                answer = -1;
-                break;
-            }
-            
-            // 시간 갱신
-            time = attacks[t][0];
+            // 전사한 경우
+            if(flag) break;
         }
         
         return answer;
