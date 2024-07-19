@@ -17,11 +17,15 @@ class Solution {
             if(number%i==0) {
                 
                 // 1000만을 넘을 경우 몫을 선택
-                if(number/i>10000000) 
+                if(number/i>10000000) {
                     max = Math.max(max,i);
+                    continue;
+                }
                 
                 // 1000만을 넘지 않을 경우 나누는 수 선택
                 else max = Math.max(max,number/i);
+                
+                break;
             }
         }
         
