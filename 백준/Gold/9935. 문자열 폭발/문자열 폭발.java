@@ -1,53 +1,58 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Stack;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb;
+
+        // 확인된 문자 관리 스택 생성
         Stack<Character> stack = new Stack<>();
-        StringBuilder sb = new StringBuilder();
 
         // 문자열 입력
-        String letters = br.readLine();
-        // 폭파 문자열
-        String findLetters = br.readLine();
+        String letter = br.readLine();
 
-        for(int idx=0; idx<letters.length(); idx++) {
-            char element = letters.charAt(idx);
-            stack.push(element);
+        // 폭발 문자열 입력
+        String boom = br.readLine();
 
-            // 폭팔 문자열만큼 길이가 들어온다면 확인
-            if(stack.size()>=findLetters.length()) {
-                // 결과 여부 확인 플래그
+        // 문자열 확인
+        for(int i=0; i<letter.length(); i++) {
+
+            // 문자 스택에 삽입
+            stack.push(letter.charAt(i));
+
+            // 폭발 문자열 길이 이상인 경우
+            if(stack.size()>=boom.length()) {
+
+                // 문자열 포함 여부
                 boolean flag = true;
-                int stackSize = stack.size();
-                int findLettersLen = findLetters.length();
-                for(int c=0; c<findLettersLen; c++) {
-                    // 비교
-                    if(stack.get(stackSize-findLettersLen+c)!=findLetters.charAt(c)) {
+
+                // 스택에 폭발 문자열 포함 여부 확인
+                for(int j=0; j<boom.length(); j++) {
+
+                    // 문자 비교 결과 다른 경우
+                    if(stack.get(stack.size()-boom.length()+j)!=boom.charAt(j)) {
                         flag = false;
                         break;
                     }
                 }
 
-                // 만약 폭팔 문자열을 확인할 경우
-                if(flag==true) {
-                    for(int c=0; c<findLettersLen; c++) {
+                // 폭발 문자열을 포함한 경우
+                if(flag) {
+                    for(int j=0; j<boom.length(); j++)
                         stack.pop();
-                    }
                 }
             }
         }
 
-        // 결과값 저장
-        for(char c: stack)
-            sb.append(c);
-
         // 결과 확인
-        if(sb.length()==0)
-            System.out.println("FRULA");
-        else
+        if(stack.isEmpty()) System.out.println("FRULA");
+        else {
+            sb = new StringBuilder();
+            for(char c: stack) sb.append(c);
             System.out.println(sb.toString());
+        }
     }
 }
