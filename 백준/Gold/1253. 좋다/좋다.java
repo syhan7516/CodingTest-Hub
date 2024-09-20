@@ -17,19 +17,17 @@ public class Main {
 
         // 숫자 정보 입력
         st = new StringTokenizer(br.readLine());
-        for(int i=0; i<numCnt; i++) {
+        for(int i=0; i<numCnt; i++)
             nums[i] = Integer.parseInt(st.nextToken());
-        }
 
         // 정렬
         Arrays.sort(nums);
 
-        // 결과
-        int answer = 0;
-
         // 좋다 수 찾기
+        int answer = 0;
         for(int i=0; i<numCnt; i++) {
 
+            // 범위 지정
             int left = 0;
             int right = numCnt-1;
 
@@ -45,14 +43,16 @@ public class Main {
                 // 두 수 더하기
                 int sum = nums[left]+nums[right];
 
-                // 비교
+                // 존재하는 경우
                 if(sum==nums[i]) {
                     answer++;
                     break;
                 }
 
+                // 존재하지 않으며, 구한 값이 더 큰 경우
                 else if(sum>nums[i]) right--;
 
+                // 존재하지 않으며, 구한 값이 더 작은 경우
                 else left++;
             }
         }
