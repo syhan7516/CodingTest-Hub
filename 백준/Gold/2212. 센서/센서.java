@@ -5,53 +5,53 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
+
+    // 결과, 센서 개수, 집중국 개수
+    public static int answer, sensorCount, centerCount;
+
+    // 센서 위치 정보 배열
+    public static int sensorPoints[];
+
+    // 센서 간격 정보 배열
+    public static int sensorPointsDistance[];
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 센서의 개수 입력
-        int sensorCnt = Integer.parseInt(br.readLine());
+        // 센서 개수, 집중국 개수 입력
+        sensorCount = Integer.parseInt(br.readLine());
+        centerCount = Integer.parseInt(br.readLine());
 
-        // 집중국의 개수 입력
-        int centerCnt = Integer.parseInt(br.readLine());
+        // 센서 위치 정보 배열 생성
+        sensorPoints = new int[sensorCount];
 
-        // 집중국의 개수가 센서 수보다 같거나 큰 경우
-        if(centerCnt>=sensorCnt)
-            System.out.println(0);
+        // 센서 위치 정보 입력
+        st = new StringTokenizer(br.readLine());
+        for(int point=0; point<sensorCount; point++)
+            sensorPoints[point] = Integer.parseInt(st.nextToken());
 
-        // 아닌 경우
-        else {
-            // 센서 좌표 배열 생성
-            int sensor[] = new int[sensorCnt];
+        // 센서 간격 정보 배열 생성
+        sensorPointsDistance = new int[sensorCount];
 
-            // 좌표 정보 입력
-            st = new StringTokenizer(br.readLine());
-            for(int i=0; i<sensorCnt; i++) {
-                sensor[i] = Integer.parseInt(st.nextToken());
-            }
+        // 센서 위치 정렬
+        Arrays.sort(sensorPoints);
 
-            // 좌표 정렬
-            Arrays.sort(sensor);
+        // 센서 간격 정보 구하기
+        for(int point=0; point<sensorCount-1; point++)
+            sensorPointsDistance[point] = sensorPoints[point+1]-sensorPoints[point];
 
-            // 좌표 차이 저장 배열 생성
-            int diff[] = new int[sensorCnt-1];
+        // 센서 간격 작은 순으로 정렬
+        Arrays.sort(sensorPointsDistance);
 
-            // 좌표 차이 구하기
-            for(int i=0; i<sensorCnt-1; i++) {
-                diff[i] = sensor[i+1]-sensor[i];
-            }
+        // 먼 거리 집중국 설치 후 남은 개수
+        int existCenterCount = sensorCount-centerCount;
 
-            // 좌표 차이 배열 정렬
-            Arrays.sort(diff);
+        // 남은 센서가 거리 합 구하기
+        for(int point=0; point<=existCenterCount; point++)
+            answer += sensorPointsDistance[point];
 
-            // 최선의 구간 길이 구하기
-            int distance = 0;
-            for(int i=0; i<sensorCnt-centerCnt; i++) {
-                distance += diff[i];
-            }
-
-            // 결과 출력
-            System.out.println(distance);
-        }
+        // 결과 출력
+        System.out.println(answer);
     }
 }
