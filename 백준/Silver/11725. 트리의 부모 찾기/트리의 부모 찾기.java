@@ -1,61 +1,91 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    // 노드 개수
-    public static int nodeCnt;
-    // 노드 연결 관계 배열
-    public static ArrayList<ArrayList<Integer>> tree = new ArrayList<>();
-    // 부모 배열
+    // 노드의 개수
+    public static int nodeCount;
+
+    // 노드 연결 관계 리스트
+    public static ArrayList<ArrayList<Integer>> relation;
+
+    // 부모 정보 배열
     public static int parent[];
-    // 큐
-    public static Queue<Integer> treeNode = new LinkedList<>();
 
-    public static void main(String args[]) throws IOException
-    {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
+    // 부모 노드 찾기 메서드
+    public static void solve() {
 
-        // 노드 개수 입력
-        nodeCnt = Integer.parseInt(br.readLine());
-        // 트리 생성
-        for(int idx=0; idx<=nodeCnt; idx++) {
-            tree.add(new ArrayList<>());
-        }
+        // 방문 여부 배열 생성
+        boolean visited[] = new boolean[nodeCount+1];
 
-        // 노드 입력 & 연결
-        for(int idx=0; idx<nodeCnt-1; idx++) {
-            st = new StringTokenizer(br.readLine());
-            int firNode = Integer.parseInt(st.nextToken());
-            int secNode = Integer.parseInt(st.nextToken());
-            tree.get(firNode).add(secNode);
-            tree.get(secNode).add(firNode);
-        }
+        // 관계 확인 큐 생성
+        Queue<Integer> queue = new LinkedList<>();
 
-        // 부모 찾기
-        parent = new int[nodeCnt+1];
-        for(int rootNode=0; rootNode<tree.get(1).size(); rootNode++) {
-            int node = tree.get(1).get(rootNode);
-            parent[node] = 1;
-            treeNode.offer(node);
-        }
+        // 루트 노드 삽입
+        queue.offer(1);
+        visited[1] = true;
 
-        while(!treeNode.isEmpty()) {
-            int curNode = treeNode.poll();
-            for(int idx=0; idx<tree.get(curNode).size(); idx++) {
-                int node = tree.get(curNode).get(idx);
-                if(parent[node]==0) {
-                    parent[node] = curNode;
-                    treeNode.offer(node);
+        // 탐색
+        while(!queue.isEmpty()) {
+
+            // 기준 노드
+            int currentNode = queue.poll();
+            int connectCount = relation.get(currentNode).size();
+
+            // 연결 노드 탐색
+            for(int connectNodeIndex=0; connectNodeIndex<connectCount; connectNodeIndex++) {
+
+                // 연결 노드
+                int connectNode = relation.get(currentNode).get(connectNodeIndex);
+
+                // 방문하지 않은 경우 자식으로 판단
+                if(!visited[connectNode]) {
+
+                    // 큐에 삽입
+                    queue.offer(connectNode);
+                    visited[connectNode] = true;
+                    parent[connectNode] = currentNode;
                 }
             }
         }
+    }
 
-        // 결과 출력
-        for(int idx=2; idx<=nodeCnt; idx++)
-            System.out.println(parent[idx]);
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
+
+        // 노드 개수 입력
+        nodeCount = Integer.parseInt(br.readLine());
+
+        // 노드 연결 관계 리스트 생성 및 초기화
+        relation = new ArrayList<>();
+        for(int node=0; node<=nodeCount; node++)
+            relation.add(new ArrayList<>());
+
+        // 노드 연결 정보 입력
+        for(int edge=0; edge<nodeCount-1; edge++) {
+            st = new StringTokenizer(br.readLine());
+            int first = Integer.parseInt(st.nextToken());
+            int second = Integer.parseInt(st.nextToken());
+            relation.get(first).add(second);
+            relation.get(second).add(first);
+        }
+
+        // 부모 정보 배열 생성
+        parent = new int[nodeCount+1];
+
+        // 부모 노드 찾기
+        solve();
+
+        // 결과 저장 및 출력
+        for(int node=2; node<=nodeCount; node++)
+            sb.append(parent[node]).append("\n");
+        System.out.println(sb.toString());
     }
 }
