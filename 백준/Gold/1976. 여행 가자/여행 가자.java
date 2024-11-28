@@ -1,76 +1,92 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    // 도시의 수
-    public static int cityCnt, planCityCnt;
-    // 도시
-    public static int city[][];
-    // 도시 연결 정보
+    // 도시 수, 계획 도시 수
+    public static int totalCityCount, planCityCount;
+
+    // 대표 배열
     public static int parent[];
 
-    // 대표 번호 찾기
-    static int find(int node) {
-        if(parent[node]==node)
-            return node;
+    // find
+    public static int find(int number) {
 
-        return parent[node] = find(parent[node]);
+        // 자기 자신인 경우
+        if(parent[number]==number)
+            return number;
+
+        return parent[number] = find(parent[number]);
     }
 
-    // 도시 연결
-    static void union(int A, int B) {
-        int rootA = find(A);
-        int rootB = find(B);
-        parent[rootB] = rootA;
+    // union
+    public static void union(int a, int b) {
+
+        // 대표 찾기
+        a = find(a);
+        b = find(b);
+
+        // 집합 추가
+        if(a<b) parent[b] = a;
+        else parent[a] = b;
     }
 
-    public static void main(String[] args) throws Exception {
+    // 게획 도시 확인 메서드
+    public static boolean solve(StringTokenizer st) {
+
+        // 시작 도시
+        int cityGroup = find(Integer.parseInt(st.nextToken()));
+
+        // 나머지 도시 확인
+        for (int city=2; city<=planCityCount; city++) {
+            int planCity = Integer.parseInt(st.nextToken());
+
+            // 방문 불가능한 도시인 경우
+            if (find(cityGroup)!=find(planCity))
+                return false;
+        }
+
+        return true;
+    }
+
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 도시의 수 입력
-        cityCnt = Integer.parseInt(br.readLine());
+        // 도시 수 입력
+        totalCityCount = Integer.parseInt(br.readLine());
+        planCityCount = Integer.parseInt(br.readLine());
 
-        // 여행할 도시 수 입력
-        planCityCnt = Integer.parseInt(br.readLine());
+        // 대표 배열 생성
+        parent = new int[totalCityCount+1];
 
-        // 대표 테이플 초기화
-        parent = new int[cityCnt+1];
-        for(int idx=1; idx<=cityCnt; idx++)
-            parent[idx] = idx;
+        // 대표 배열 초기화
+        for(int index=1; index<=totalCityCount; index++)
+            parent[index] = index;
 
-        // 도시 연결 정보 입력
-        city = new int[cityCnt+1][cityCnt+1];
-        for(int row=1; row<=cityCnt; row++) {
+        // 연결 정보 입력
+        for(int city=1; city<=totalCityCount; city++) {
             st = new StringTokenizer(br.readLine());
-            for(int col=1; col<=cityCnt; col++) {
-                city[row][col] = Integer.parseInt(st.nextToken());
-                if(city[row][col]==1)
-                    union(row,col);
+            for(int otherCity=1; otherCity<=totalCityCount; otherCity++) {
+
+                // 연결 정보
+                int connect = Integer.parseInt(st.nextToken());
+
+                // 연결된 경우
+                if(connect==1) union(city,otherCity);
             }
         }
 
-        // 계획 도시 정보 입력
-        int checkCity[] = new int[planCityCnt];
-        st = new StringTokenizer(br.readLine());
-        for(int idx=0; idx<checkCity.length; idx++) {
-            checkCity[idx] = Integer.parseInt(st.nextToken());
-        }
+        // 연결 정보 최신화
+        for(int city=1; city<=totalCityCount; city++) find(city);
 
         // 계획 도시 확인
-        boolean flag = true;
-        int result = find(checkCity[0]);
-        for(int idx=1; idx<checkCity.length; idx++) {
-            if(find(checkCity[idx-1])!=find(checkCity[idx]))
-                flag = false;
-        }
+        boolean answer = solve(new StringTokenizer(br.readLine()));
 
         // 결과 출력
-        if(flag==true)
-            System.out.println("YES");
-        else
-            System.out.println("NO");
+        if(answer) System.out.println("YES");
+        else System.out.println("NO");
     }
 }
