@@ -50,9 +50,6 @@ class Solution {
         }
                 
         // 결과
-        int[] answer = new int[saram.size()];
-        for(int index=0; index<answer.length; index++)
-            answer[index] = saram.get(index);
-        return answer;
+        return saram.stream().mapToInt(i -> i).toArray();
     }
 }
