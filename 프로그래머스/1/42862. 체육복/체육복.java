@@ -1,39 +1,51 @@
 import java.util.*;
 
 class Solution {
-    
     public int solution(int n, int[] lost, int[] reserve) {
         
-        // 결과
-        int answer = n-lost.length;
+        // 체육복 보유 정보 배열 생성
+        int count[] = new int[n+1];
         
-        // 정렬
-        Arrays.sort(lost);
-        Arrays.sort(reserve);
+        // 초기화
+        Arrays.fill(count,1);
         
-        // 본인 체육복이 도난 당한 경우
-        for(int i=0; i<lost.length; i++) {
-            for(int j=0; j<reserve.length; j++) {
-                if(lost[i] == reserve[j]) {
-                    answer++;
-                    lost[i] = -1;
-                    reserve[j] = -1;
-                    break;
+        // 체육복 여벌 정보 반영
+        for(int index=0; index<reserve.length; index++)
+            count[reserve[index]]++;
+        
+        // 체육복 잃어버린 사람 정보 반영
+        for(int index=0; index<lost.length; index++)
+            count[lost[index]]--;
+        
+        // 못빌린 사람 수
+        int notBorrow = 0;
+        
+        // 대여 가능 여부 확인
+        for(int index=count.length-1; index>0; index--) {
+            
+            // 체육복을 가진 사람
+            if(count[index]>0) continue;
+            
+            // 체육복을 잃어버린 사람
+            else {
+                
+                // 뒷사람 확인
+                if(index!=n && count[index+1]>1) {
+                    count[index+1]--;
+                    continue;
                 }
+                
+                // 앞사람 확인
+                if(index!=1 && count[index-1]>1) {
+                    count[index-1]--;
+                    continue;
+                }
+                
+                // 못빌린 사람
+                notBorrow++;
             }
         }
         
-        // 다른 사람 체육복이 도난 당한 경우
-        for(int i=0; i<lost.length; i++) {
-            for(int j=0; j<reserve.length; j++) {
-                if(lost[i]+1 == reserve[j] || lost[i]-1 == reserve[j]) {
-                    answer++;
-                    reserve[j] = -1;
-                    break;
-                }
-            }
-        }
-        
-        return answer;
+        return n-notBorrow;
     }
 }
