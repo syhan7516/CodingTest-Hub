@@ -1,119 +1,112 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 // 간선 클래스
 class Edge implements Comparable<Edge> {
-	int start;
-	int end;
-	int value;
-	
-	public Edge(int start, int end, int value) {
-		this.start = start;
-		this.end = end;
-		this.value = value;
-	}
-	
-	public int compareTo(Edge other) {
-		return this.value-other.value;
-	}
+    int start;
+    int end;
+    int value;
+
+    public Edge(int start, int end, int value) {
+        this.start = start;
+        this.end = end;
+        this.value = value;
+    }
+
+    public int compareTo(Edge otherEdge) {
+        return this.value - otherEdge.value;
+    }
 }
 
 public class Main {
-	
-	// 정점 개수, 간선 개수, 결과
-	public static int v,e;
-	public static long result;
-	// 간선 가중치 정렬을 위한 우선 순위 큐
-	public static PriorityQueue<Edge> priQ;
-	// 대표 번호 배열 
-	public static int parents[];
-	
-	// find
-	static int find(int a) {
-		
-		// 자기 자신과 동일한 경우
-		if(parents[a]==a) return a;
-		
-		// 아닐 경우
-		return parents[a] = find(parents[a]);
-	}
-	
-	// union
-	static void union(int a, int b) {
-		
-		// 각각 대표 번호 찾기
-		a = find(a);
-		b = find(b);
-		
-		// 집합 합치기
-		parents[b] = a;
-	}
-	
-	// MST 구하기 메서드
-	static void solve() {
-		
-		// 대표 번호 배열 생성
-		parents = new int[v+1];
-		
-		// 대표 번호 배열 초기화
-		for(int i=1; i<=v; i++)
-			parents[i] = i;
-		
-		// 현재 연결된 간선 수
-		int cnt = 0;
-	
-		// 간선 확인하기
-		while(!priQ.isEmpty()) {
-			
-			// 간선 연결이 완료된 경우
-			if(cnt==v-1) break;
-			
-			// 확인할 간선
-			Edge curEdge = priQ.poll();
-			
-			// 싸이클 확인
-			if(find(curEdge.start)==find(curEdge.end)) continue;
-			
-			// 간선 합치기
-			union(curEdge.start,curEdge.end);
-			
-			// 정점 개수 추가
-			cnt++;
-			
-			// 비용 추가
-			result += curEdge.value;
-		}
-	}
-	
-	
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
+
+    // 결과, 정점 개수, 간선 개수
+    public static int answer, nodeCount, edgeCount;
+
+    // 간선 우선 순위 큐
+    public static PriorityQueue<Edge> queue;
+
+    // 집합 배열
+    public static int parent[];
+
+    // union
+    public static void union(int node1, int node2) {
+
+        node1 = find(node1);
+        node2 = find(node2);
+
+        if(node1<node2) parent[node2] = node1;
+        else parent[node1] = node2;
+    }
+
+    // find
+    public static int find(int node) {
+
+        if(parent[node]==node)
+            return node;
+
+        return parent[node] = find(parent[node]);
+    }
+
+    // MST 구하기 메서드
+    public static void solve() {
+
+        // 연결 개수
+        int connectCount = 1;
+
+        // 연결하기
+        while(!queue.isEmpty()) {
+
+            // 연결이 완료된 경우
+            if(connectCount==nodeCount) return;
+
+            // 확인 간선
+            Edge currentEdge = queue.poll();
+            int start = currentEdge.start;
+            int end = currentEdge.end;
+
+            // 사이클 여부 확인
+            if(find(start)==find(end)) continue;
+
+            // 정점 연결
+            union(start,end);
+            answer += currentEdge.value;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
 
         // 정점 개수, 간선 개수 입력
         st = new StringTokenizer(br.readLine());
-        v = Integer.parseInt(st.nextToken());
-        e = Integer.parseInt(st.nextToken());
+        nodeCount = Integer.parseInt(st.nextToken());
+        edgeCount = Integer.parseInt(st.nextToken());
 
-        // 우선 순위 큐 생성
-        priQ = new PriorityQueue<>();
+        // 간선 우선 순위 큐 생성
+        queue = new PriorityQueue<>();
 
         // 간선 정보 입력
-        for(int i=0; i<e; i++) {
+        for(int edge=0; edge<edgeCount; edge++) {
             st = new StringTokenizer(br.readLine());
-            int from = Integer.parseInt(st.nextToken());
-            int to = Integer.parseInt(st.nextToken());
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
             int value = Integer.parseInt(st.nextToken());
-            priQ.offer(new Edge(from,to,value));
+            queue.offer(new Edge(start,end,value));
         }
 
+        // 집합 배열 생성, 초기화
+        parent = new int[nodeCount+1];
+        for(int index=1; index<=nodeCount; index++)
+            parent[index] = index;
+
         // MST 구하기
-        result = 0;
+        answer = 0;
         solve();
-		
-		// 결과 출력
-		System.out.println(result);
-	}
+
+        // 결과 출력
+        System.out.println(answer);
+    }
 }
