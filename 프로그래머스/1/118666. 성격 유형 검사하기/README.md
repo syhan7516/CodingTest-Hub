@@ -4,7 +4,7 @@
 
 ### 성능 요약
 
-메모리: 90.8 MB, 시간: 11.08 ms
+메모리: 84.9 MB, 시간: 0.72 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2023년 12월 6일 11:56:5
+2025년 01월 05일 01:01:13
 
 ### 문제 설명
 
@@ -127,49 +127,31 @@
 <li><code>survey[i]</code>의 첫 번째 캐릭터는 i+1번 질문의 비동의 관련 선택지를 선택하면 받는 성격 유형을 의미합니다. </li>
 <li><code>survey[i]</code>의 두 번째 캐릭터는 i+1번 질문의 동의 관련 선택지를 선택하면 받는 성격 유형을 의미합니다.</li>
 </ul></li>
-<li><p><code>choices</code>의 길이 = <code>survey</code>의 길이</p>
+<li><code>choices</code>의 길이 = <code>survey</code>의 길이
 
 <ul>
 <li><code>choices[i]</code>는 검사자가 선택한 i+1번째 질문의 선택지를 의미합니다.</li>
 <li>1 ≤ <code>choices</code>의 원소 ≤ 7</li>
+</ul></li>
 </ul>
-<table class="table">
-        <thead><tr>
-<th><code>choices</code></th>
-<th>뜻</th>
-</tr>
-</thead>
-        <tbody><tr>
-<td>1</td>
-<td>매우 비동의</td>
-</tr>
-<tr>
-<td>2</td>
-<td>비동의</td>
-</tr>
-<tr>
-<td>3</td>
-<td>약간 비동의</td>
-</tr>
-<tr>
-<td>4</td>
-<td>모르겠음</td>
-</tr>
-<tr>
-<td>5</td>
-<td>약간 동의</td>
-</tr>
-<tr>
-<td>6</td>
-<td>동의</td>
-</tr>
-<tr>
-<td>7</td>
-<td>매우 동의</td>
-</tr>
-</tbody>
-      </table></li>
-</ul>
+
+<p>| <code>choices</code> | 뜻 |</p>
+
+<p>| --- | --- |</p>
+
+<p>| 1 | 매우 비동의 |</p>
+
+<p>| 2 | 비동의 |</p>
+
+<p>| 3 | 약간 비동의 |</p>
+
+<p>| 4 | 모르겠음 |</p>
+
+<p>| 5 | 약간 동의 |</p>
+
+<p>| 6 | 동의 |</p>
+
+<p>| 7 | 매우 동의 |</p>
 
 <hr>
 
