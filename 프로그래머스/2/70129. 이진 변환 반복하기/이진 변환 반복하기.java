@@ -1,53 +1,36 @@
-import java.util.*;
-
 class Solution {
     
-    // 0 제거 메서드
-    public static int deleteZero(String letter) {
+    // 0개수 확인 메서드
+    public static int getZeroCount(String s) {
         
-        // 확인 개수
-        int cnt = 0;
+        int count = 0;
         
-        // 문자열 확인
-        for(int i=0; i<letter.length(); i++) {
-            
-            // 0인 경우 개수 증가
-            if(letter.charAt(i)=='0')
-                cnt++;
-        }
+        for(int index=0; index<s.length(); index++)
+            if(s.charAt(index)=='0') count++;
         
-        return cnt;
+        return count;
     }
+
     
     public int[] solution(String s) {
         
-        // 제거 0 개수
-        int rmZeroCnt = 0;
+        // 0개수
+        int zeroCount = 0;
         
-        // 진수 변환 수
-        int transCnt = 0;
+        // 변환 수
+        int changeCount = 0;
         
-        // 문자열 확인
-        while(true) {
+        while(!"1".equals(s)) {
             
-            // 문자열이 1인 경우
-            if(s.equals("1"))
-                break;
+            // 0개수
+            int count = getZeroCount(s);
+            zeroCount += count;
             
-            // 0 제거
-            int cnt = deleteZero(s);
-            rmZeroCnt += cnt;
-            
-            // 진수 변환
-            s = Integer.toBinaryString(s.length()-cnt);
-            transCnt++;
+            // 변환
+            s = Integer.toBinaryString(s.length()-count);
+            changeCount++;
         }
         
-        // 결과
-        int[] answer = new int[2];
-        answer[1] = rmZeroCnt;
-        answer[0] = transCnt;
-        
-        return answer;
+        return new int[]{changeCount,zeroCount};
     }
 }
