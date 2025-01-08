@@ -4,47 +4,49 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-// 간선 클래스
-class Edge {
-    int node;
+// 노드 클래스
+class Node {
+    int number;
     int value;
 
-    public Edge(int node, int value) {
-        this.node = node;
+    public Node(int number, int value) {
+        this.number = number;
         this.value = value;
     }
 }
 
 public class Main {
 
-    // 결과, 노드 개수
-    public static int answer, nodeCnt;
+    // 결과, 노드의 개수, 루트에서 가장 먼 노드
+    public static int answer, nodeCount, maxDistanceRootNode;
 
-    // 노드 관계 리스트
-    public static ArrayList<ArrayList<Edge>> relation;
+    // 관계 리스트
+    public static ArrayList<ArrayList<Node>> relations;
 
-    // 노드 방문 여부 배열
+    // 방문 여부 배열
     public static boolean visited[];
 
-    // 노드 순회 메서드
-    public static void solve(int node, int len) {
+    // 가장 먼 거리 구하기 메서드
+    public static void solve(int node, int distance) {
 
-        // 결과 갱신
-        answer = Math.max(answer,len);
+        // 거리 갱신
+        if(answer<distance) {
+            maxDistanceRootNode = node;
+            answer = distance;
+        }
 
         // 연결 노드 확인
-        for(int i=0; i<relation.get(node).size(); i++) {
+        for(int index=0; index<relations.get(node).size(); index++) {
 
-            // 연결된 간선
-            Edge edge = relation.get(node).get(i);
+            // 연결 노드
+            Node currentNode = relations.get(node).get(index);
 
-            // 이미 방문한 경우
-            if(visited[edge.node]) continue;
-
-            // 아직 방문하지 않은 경우
-            visited[edge.node] = true;
-            solve(edge.node,len+edge.value);
-            visited[edge.node] = false;
+            // 미방문인 경우
+            if(!visited[currentNode.number]) {
+                visited[currentNode.number] = true;
+                solve(currentNode.number, currentNode.value+distance);
+                visited[currentNode.number] = false;
+            }
         }
     }
 
@@ -52,36 +54,35 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 노드 개수 입력
-        nodeCnt = Integer.parseInt(br.readLine());
+        // 노드의 개수 입력
+        nodeCount = Integer.parseInt(br.readLine());
 
-        // 관계 리스트 생성 및 초기화
-        relation = new ArrayList<>();
-        for(int i=0; i<=nodeCnt; i++)
-            relation.add(new ArrayList<>());
+        // 관계 리스트 생성
+        relations = new ArrayList<>();
+        for(int node=0; node<=nodeCount; node++)
+            relations.add(new ArrayList<>());
 
-        // 노드 정보 입력
-        for(int i=1; i<nodeCnt; i++) {
+        // 관계 정보 입력
+        for(int edge=0; edge<nodeCount-1; edge++) {
             st = new StringTokenizer(br.readLine());
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
+            int parent = Integer.parseInt(st.nextToken());
+            int child = Integer.parseInt(st.nextToken());
             int value = Integer.parseInt(st.nextToken());
-            relation.get(start).add(new Edge(end,value));
-            relation.get(end).add(new Edge(start,value));
+            relations.get(parent).add(new Node(child, value));
+            relations.get(child).add(new Node(parent, value));
         }
 
-        // 방문 여부 배열 생성
-        visited = new boolean[nodeCnt+1];
-
-        // 리프 노드 순회
+        // 루트에서 가장 먼 구간 확인
         answer = 0;
-        for(int i=nodeCnt; i>nodeCnt/2; i--) {
-            visited[i] = true;
-            solve(i,0);
-            visited[i] = false;
-        }
+        visited = new boolean[nodeCount+1];
+        visited[1] = true;
+        solve(1,0);
 
         // 결과 출력
+        answer = 0;
+        visited = new boolean[nodeCount+1];
+        visited[maxDistanceRootNode] = true;
+        solve(maxDistanceRootNode,0);
         System.out.println(answer);
     }
 }
