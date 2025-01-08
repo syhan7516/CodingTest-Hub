@@ -1,43 +1,30 @@
-import java.util.*;
-
 class Solution {
     public int[] solution(int brown, int yellow) {
         
         // 결과
-        int[] answer = new int[2];
+        int answer[] = new int[2];
         
-        // 가로, 세로
-        int row = 0;
-        int col = 0;
-        
-        // 비율
-        int rate = 1;
-        
-        // 비율에 맞춰 확인
-        while(true) {
+        // 노란색 칸 크기 확인
+        for(int index=1; index*index<=yellow; index++) {
             
-            // 나누어 떨어지는 경우
-            if(yellow%rate==0) {
+            // 크기 조정이 가능한 경우
+            if(yellow%index==0) {
                 
-                // 가로, 세로 길이 정의
-                row = yellow/rate;
-                col = rate;
+                // 가로, 세로 크기
+                int row = index;
+                int col = yellow/index;
                 
-                // 비율 따른 갈색 개수 
-                int brownCnt = (row+2)*2 + (col*2);
+                // 개수 확인
+                int count = (col+2)*2+(row*2)+yellow; 
                 
-                // 갈색 개수가 동일한 경우
-                if(brownCnt==brown) {
-                    answer[0] = row+2;
-                    answer[1] = col+2;
-                    break;
+                // 개수가 일치하는 경우
+                if(count==brown+yellow) {
+                    answer[0] = col+2;
+                    answer[1] = row+2;
                 }
             }
-            
-            // 비율 증가
-            rate++;
         }
-
+        
         return answer;
     }
 }
