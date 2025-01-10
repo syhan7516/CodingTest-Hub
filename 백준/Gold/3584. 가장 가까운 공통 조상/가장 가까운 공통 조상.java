@@ -2,112 +2,94 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    // 노드 수, 관계 수, 결과, 찾을 두 노드
-    public static int nodeCnt, relCnt, answer, findA, findB;
+    // 결과, 노드 수, 대상 노드
+    public static int answer, nodeCount, targetNode1, targetNode2;
 
-    // 연결 관계 리스트
-    public static ArrayList<ArrayList<Integer>> relation;
+    // 관계 정보 리스트
+    public static ArrayList<ArrayList<Integer>> relations;
 
-    // 조상을 담을 리스트
-    public static ArrayList<Integer> aList, bList;
+    // 대상 노드 조상 리스트
+    public static ArrayList<Integer> targetNode1Parents, targetNode2Parents;
 
-    // 공통 조상 리스트 조회 메서드
-    static void find(int node, ArrayList<Integer> list) {
+    // 조상 정보 얻기 메서드
+    public static void getParents(int node, ArrayList<Integer> parents) {
 
-        // 자기 자신 추가
-        list.add(node);
+        // 자기 자신 저장
+        parents.add(node);
 
-        // 부모가 있는 경우
-        if(!relation.get(node).isEmpty())
-            find(relation.get(node).get(0),list);
+        // 조상 저장
+        while(!relations.get(node).isEmpty()) {
+            parents.add(relations.get(node).get(0));
+            node = relations.get(node).get(0);
+        }
     }
 
-    // 공통 조상 찾기 메서드
-    static void solve() {
+    // 조상 탐색 메서드
+    public static void solve() {
 
-        // 조상을 담을 리스트 생성
-        aList = new ArrayList<>();
-        bList = new ArrayList<>();
-        
-        // 조상 찾기
-        find(findA,aList);
-        find(findB,bList);
-        
-        // 더 높은 조상을 앞으로 배치
-        Collections.reverse(aList);
-        Collections.reverse(bList);
+        // 대상 노드 조상 리스트 생성
+        targetNode1Parents = new ArrayList<>();
+        targetNode2Parents = new ArrayList<>();
 
-        // 조상 탐색
-        int index = 0;
+        // 조상 확인
+        getParents(targetNode1,targetNode1Parents);
+        getParents(targetNode2,targetNode2Parents);
 
-        while(index<aList.size() && index<bList.size()) {
+        // 조상 비교
+        while(!targetNode1Parents.isEmpty() && !targetNode2Parents.isEmpty()) {
 
-            // 조상 가져오기
-            int a = aList.get(index);
-            int b = bList.get(index);
+            // 비교
+            int parent1 = targetNode1Parents.remove(targetNode1Parents.size()-1);
+            int parent2 = targetNode2Parents.remove(targetNode2Parents.size()-1);
 
-            // 같은 경우
-            if(a==b)
-                answer = aList.get(index);
+            // 조상이 다른 경우
+            if(parent1!=parent2) return;
 
-            // 다른 경우
-            else return;
-
-            // 인덱스 증가
-            index++;
+            // 비교 조상 갱신
+            answer = parent1;
         }
     }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
-        StringBuilder sb = new StringBuilder();
 
         // 테스트 케이스 수 입력
-        int caseNum = Integer.parseInt(br.readLine());
+        int caseCount = Integer.parseInt(br.readLine());
 
         // 케이스 수 만큼 수행
-        for(int caseIdx=1; caseIdx<=caseNum; caseIdx++) {
+        for(int caseIndex=0; caseIndex<caseCount; caseIndex++) {
 
             // 노드 수 입력
-            nodeCnt = Integer.parseInt(br.readLine());
+            nodeCount = Integer.parseInt(br.readLine());
 
-            // 관계 리스트 생성
-            relation = new ArrayList<>();
-            for (int i = 0; i <= nodeCnt; i++)
-                relation.add(new ArrayList<>());
+            // 관계 정보 리스트 생성
+            relations = new ArrayList<>();
+            for(int node=0; node<=nodeCount; node++)
+                relations.add(new ArrayList<>());
 
-            // 관계 수 입력
-            relCnt = nodeCnt-1;
-
-            // 관계 정보 입력
-            for (int i = 0; i <relCnt; i++) {
+            // 간선 정보 입력
+            for(int edge=0; edge<nodeCount-1; edge++) {
                 st = new StringTokenizer(br.readLine());
                 int parent = Integer.parseInt(st.nextToken());
                 int child = Integer.parseInt(st.nextToken());
-                relation.get(child).add(parent);
+                relations.get(child).add(parent);
             }
 
-            // 찾을 두 노드 입력
+            // 대상 노드 입력
             st = new StringTokenizer(br.readLine());
-            findA = Integer.parseInt(st.nextToken());
-            findB = Integer.parseInt(st.nextToken());
+            targetNode1 = Integer.parseInt(st.nextToken());
+            targetNode2 = Integer.parseInt(st.nextToken());
 
-            // 공통 조상 찾기
-            answer = -1;
+            // 조상 탐색
             solve();
 
-            // 결과 저장
-            sb.append(answer).append("\n");
+            // 결과 출력
+            System.out.println(answer);
         }
-
-        // 결과 출력
-        System.out.println(sb.toString());
     }
 }
