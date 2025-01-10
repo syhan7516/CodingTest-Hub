@@ -1,68 +1,79 @@
 import java.util.*;
 
 class Solution {
-    public int solution(String s) {
+    
+    // 여는 괄호인지 확인하는 메서드
+    public static boolean openLetter(char letter) {
         
-        // 결과 
-        int answer = 0;
+        if(letter=='[' || letter=='(' || letter=='{')
+            return true;
         
-        // 괄호 저장 리스트
-        ArrayList<Character> bracket = new ArrayList<>();
+        return false;
+    }
+    
+    // 짝 여부 확인 메서드
+    public static boolean isPair(char letter1, char letter2) {
         
-        // 괄호 정보 저장
-        for(int i=0; i<s.length(); i++) {
-            bracket.add(s.charAt(i));
+        if(letter1=='[' && letter2==']') return true;
+        if(letter1=='{' && letter2=='}') return true;
+        if(letter1=='(' && letter2==')') return true;
+        
+        return false;
+    }
+    
+    // 괄호 확인
+    public static boolean solve(List<Character> letters) {
+        
+        // 괄호 정보 스택 생성
+        Stack<Character> stack = new Stack<>();
+        
+        // 확인
+        for(int index=0; index<letters.size(); index++) {
+            
+            // 현재 괄호
+            char letter = letters.get(index);
+            
+            // 여는 괄호인 경우
+            if(openLetter(letter))
+                stack.push(letter);
+            
+            // 닫는 괄호인 경우
+            else {
+                
+                // 스택이 빈 경우
+                if(stack.isEmpty())
+                    return false;
+                
+                // 짝 여부 확인
+                if(isPair(stack.peek(),letter))
+                    stack.pop();
+                else return false;
+            }
         }
         
-        // 회전하며 확인하기
-        for(int i=0; i<s.length(); i++) {
-            
-            // 회전
-            Collections.rotate(bracket,-1);
-            
-            // 확인
-            Stack<Character> st = new Stack<>();
-            
-            // 확인 결과
-            boolean flag = true;
-            
-            // 괄호 짝 확인
-            for(int j=0; j<bracket.size(); j++) {
-                
-                // 확인 괄호
-                char c = bracket.get(j);
-                
-                // 여는 괄호인 경우
-                if(c=='[' || c=='(' || c=='{') {
-                    st.push(c);
-                }
-                
-                // 닫는 괄호인 경우
-                else {
-                    
-                    // 스택이 빈 경우
-                    if(st.isEmpty()) {
-                        flag = false;
-                        break;
-                    }
-                    
-                    // 짝이 맞는 경우
-                    else if(
-                        (st.peek()=='(' && c==')') ||
-                        (st.peek()=='[' && c==']') ||
-                        (st.peek()=='{' && c=='}')
-                    ) st.pop();
-                    
-                    // 짝이 맞지 않는 경우
-                    else {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
-            
-            // 괄호 짝을 다 맞춘 경우
-            if(flag && st.isEmpty()) answer++;
+        // 스택에 원소가 존재하는 경우
+        if(!stack.isEmpty())
+            return false;
+        
+        return true;
+    }
+    
+    public int solution(String s) {
+        
+        // 결과
+        int answer = 0;
+        
+        // 괄호 배열
+        char c[] = s.toCharArray();
+        
+        // 괄호 컬렉션 변환
+        List<Character> letters = new ArrayList<>();
+        for(char letter: c) letters.add(letter);
+        
+        // 리스트 돌리며 짝 여부 확인
+        for(int rotate=0; rotate<letters.size(); rotate++) {
+            if(solve(letters)) answer++;
+            Collections.rotate(letters,1);
         }
         
         return answer;
