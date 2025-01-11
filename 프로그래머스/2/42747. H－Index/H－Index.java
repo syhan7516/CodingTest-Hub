@@ -15,17 +15,17 @@ class Solution {
             int mid = (start+end)/2;
             
             // 이상, 이하 값
-            int a = 0;
-            int b = 0;
+            int above = 0;
+            int below = 0;
             
             // 논문 정보 확인
-            for(int i=citations.length-1; i>=0; i--) {
-                if(mid<=citations[i]) a++;
-                if(mid>=citations[i]) b++;
+            for(int index=0; index<citations.length; index++) {
+                if(mid<=citations[index]) above++;
+                if(mid>=citations[index]) below++;
             }
             
             // 조건에 맞는 경우
-            if(mid<=a && mid>=b) {
+            if(mid<=above && mid>=below) {
                 answer = mid;
                 start = mid+1;
             }
