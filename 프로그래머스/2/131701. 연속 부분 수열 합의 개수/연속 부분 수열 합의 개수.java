@@ -2,51 +2,50 @@ import java.util.*;
 
 class Solution {
     
-    // 합 저장 셋
-    static HashSet<Integer> set;
+    // 수열 합 저장 셋
+    public static HashSet<Integer> sums;
     
-    // 각 개수마다 연속 부분 수열 합 구하기 메서드
-    static void solve(int cnt, int[] elements) {
+    // 수열 합 구하기 메서드
+    public static void solve(int size, int []elements) {
         
         // 합
         int sum = 0;
         
-        // 초기 합 구하기
-        for(int i=0; i<cnt; i++)
-            sum += elements[i];
-        set.add(sum);
+        // 더하기 위치 
+        int point = size-1;
         
-        // 이후 합 구하기
-        for(int i=0; i<elements.length-1; i++) {
+        // 시작 값 설정
+        for(int index=0; index<size; index++)
+            sum += elements[index];
+        sums.add(sum);
+        
+        // 나머지 합 구하기
+        for(int index=0; index<elements.length; index++) {
             
-            // 가장 앞 부분 빼기
-            sum -= elements[i];
+            // 가장 앞 숫자 제거
+            sum -= elements[index];
             
-            // 인덱스가 범위를 넘은 경우
-            if(cnt>=elements.length) 
-                cnt -= elements.length; 
+            // 더할 숫자 위치 및 범위 조정
+            point++;
+            point = point==elements.length ? point-=elements.length : point;
             
-            // 다음 수 더하기
-            sum += elements[cnt];
-            set.add(sum);
+            // 수열 합 갱신
+            sum += elements[point];
             
-            // 인덱스 증가
-            cnt++;
+            // 결과 추가
+            sums.add(sum);
         }
     }
     
     public int solution(int[] elements) {
         
-        // 합 저장 셋 생성
-        set = new HashSet<>();
+        // 수열 합 저장 셋 생성
+        sums = new HashSet<>();
         
-        // 각 개수마다 연속 부분 수열 합 구하기
-        for(int i=1; i<=elements.length; i++)
-            solve(i,elements);
+        // 크기 만큼 합 구하기
+        for(int size=1; size<=elements.length; size++) 
+            solve(size,elements);
         
-        // 결과
-        int answer = set.size();
-        
-        return answer;
+        return sums.size();
     }
 }
