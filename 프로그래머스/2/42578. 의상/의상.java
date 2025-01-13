@@ -1,26 +1,27 @@
 import java.util.*;
 
 class Solution {
+    
+    // 옷 종류 개수 해시 맵
+    public static HashMap<String,Integer> map;
+    
     public int solution(String[][] clothes) {
         
-        // 의상 종류 개수 저장 해시 생성
-        HashMap<String,Integer> map = new HashMap<>();
-        
-        // 의상 종류별 개수 확인
-        for(int i=0; i<clothes.length; i++) {
-            
-            // 저장
-            map.put(clothes[i][1],map.getOrDefault(clothes[i][1],0)+1);
-        }
-        
-        // 의상 조합하기
-        int cnt = 1;
-        for(String kind: map.keySet()) {
-            cnt *= map.get(kind)+1;
-        }
-            
         // 결과
-        int answer = cnt-1;
-        return answer;
+        int answer = 1;
+        
+        // 옷 종류 개수 해시 맵 생성
+        map = new HashMap<>();
+        
+        // 옷 종류 입력
+        for(int index=0; index<clothes.length; index++) {
+            map.put(clothes[index][1],map.getOrDefault(clothes[index][1],0)+1);
+        }
+        
+        // 옷 종류 개수 확인
+        for(int count: map.values())
+            answer *= count+1;
+        
+        return answer-1;
     }
 }
