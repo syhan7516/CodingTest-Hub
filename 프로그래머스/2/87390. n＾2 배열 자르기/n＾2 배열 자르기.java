@@ -1,37 +1,27 @@
+import java.util.*;
+
 class Solution {
     public int[] solution(int n, long left, long right) {
         
-        // 인덱스 위치
-        long check = left;
-        int index = 0;
+        // 값 저장 리스트 생성
+        ArrayList<Integer> nums = new ArrayList<>();
         
-        // 결과 배열 크기
-        int size = (int)(right-left)+1;
+        // 순회
+        for(long index=left; index<=right; index++) {
+            
+            // 위치
+            int row = (int)(index/n);
+            int col = (int)(index%n);
+            
+            // 값
+            int value = Math.max(row,col)+1;
+            nums.add(value);
+        }
         
         // 결과
-        int[] answer = new int[size];
-        
-        // 위치 숫자 확인
-        while(true) {
-            
-            // 종료 조건
-            if(check>right) break;
-                
-            // 인데스화
-            int i = (int)(check/n);
-            int j = (int)(check%n);
-            
-            // 둘의 숫자가 같은 경우
-            if(i==j) 
-                answer[index++] = i+1;
-
-            // 둘의 숫자가 다른 경우
-            else {
-                answer[index++] = i<j ? j+1 : i+1;
-            }
-            
-            check++;
-        }
+        int answer[] = new int[nums.size()];
+        for(int index=0; index<nums.size(); index++)
+            answer[index] = nums.get(index);
         
         return answer;
     }
