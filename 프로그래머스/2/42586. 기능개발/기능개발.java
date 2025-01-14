@@ -2,53 +2,55 @@ import java.util.*;
 
 class Solution {
     public int[] solution(int[] progresses, int[] speeds) {
-
-        // 걸리는 일 수, 이전 최대 작업 일 수
-        int days, daysMax = 0;
-    
-        // 프로세스 스택, 배포 큐 생성
-        Stack<Integer> st = new Stack<>();
-        Queue<Integer> queue = new LinkedList<>();
         
-        for(int i=0; i<progresses.length; i++) {
+        // 배포 개수 저장 리스트 생성
+        ArrayList<Integer> deploy = new ArrayList<>();
+        
+        // 시간
+        int time = 0;
+        
+        // 일괄 처리 개수
+        int count = 0;
+        
+        // 작업 순회
+        for(int progress=0; progress<progresses.length; progress++) {
             
-            // 완료까지 남은 작업
-            int exist = 100-progresses[i];
+            // 현재 작업
+            int job = progresses[progress];
             
-            // 예상 일 수
-            days = (exist%speeds[i])==0 ? exist/speeds[i] : exist/speeds[i]+1;
+            // 시간에 따른 작업 결과
+            job += time*speeds[progress];
             
-            // 스택이 빈 경우
-            if(st.isEmpty()) {
-                st.push(days);
-                daysMax = days;
+            // 작업이 완료된 경우
+            if(job>=100) {
+                count++;
+                continue;
             }
             
-            // 완료된 작업이 존재하는 경우
-            else {
-                
-                // 현재 개발이 더 오래걸리는 경우
-                if(days>daysMax) {
-                    queue.offer(st.size());
-                    st.clear();
-                    daysMax = days;
-                }
-                
-                st.push(days);
-            }
+            // 초기화
+            deploy.add(count);
+            count = 0;
+        
+            // 남은 작업
+            int remainingWork = 100-job;
+            
+            // 시간 계산
+            time += remainingWork%speeds[progress]==0 
+                ? remainingWork/speeds[progress]
+                : remainingWork/speeds[progress]+1;
+            
+            // 완료 작업 추가
+            count++;
         }
         
-        // 배포할 작업이 남은 경우
-        if(!st.isEmpty()) queue.offer(st.size());
+        // 마지막 배포
+        deploy.add(count);
         
         // 결과
-        int[] answer = new int[queue.size()];
+        int[] answer = new int[deploy.size()-1];
+        for(int index=1; index<deploy.size(); index++)
+            answer[index-1] = deploy.get(index);
         
-        int idx = 0;
-        
-        while(!queue.isEmpty())
-            answer[idx++] = queue.poll();
-            
         return answer;
     }
 }
