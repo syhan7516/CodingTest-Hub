@@ -1,65 +1,65 @@
 import java.util.*;
 
-// 작업 클래스
-class Job {
-    int priority;
-    int point;
+// 프로세스 클래스
+class Process {
+    int processNum;
+    int order;
     
-    public Job(int priority, int point) {
-        this.priority = priority;
-        this.point = point;
+    public Process(int processNum, int order) {
+        this.processNum = processNum;
+        this.order = order;
     }
 }
 
 class Solution {
+    
+    // 프로세스 저장 큐
+    public static Queue<Process> queue;
+    
+    // 우선 순위 저장 큐
+    public static PriorityQueue<Integer> orders;
+    
     public int solution(int[] priorities, int location) {
         
         // 결과
         int answer = 0;
         
-        // 작업 관리 큐 생성
-        Queue<Job> queue = new LinkedList<>();
+        // 프로세스 저장 큐, 우선 순위 큐 생성
+        queue = new LinkedList<>();
+        orders = new PriorityQueue<>(Collections.reverseOrder());
         
-        // 우선 순위 개수 저장 배열
-        int rank[] = new int[10];
-        
-        // 시작점
-        int max = -1;
-        
-        // 작업 삽입
-        for(int i=0; i<priorities.length; i++) {
-            queue.offer(new Job(priorities[i],i));
-            rank[priorities[i]]++;
-            max = Math.max(max,priorities[i]);
+        // 작업 저장
+        for(int index=0; index<priorities.length; index++) {
+            queue.offer(new Process(index,priorities[index]));
+            orders.offer(priorities[index]);
         }
         
+        // 횟수
+        int count = 0;
+        
+        // 현재 우선 순위
+        int orderNum = orders.poll();
+        
         // 작업 수행
-        while(true) {
+        while(!queue.isEmpty()) {
             
-            // 작업 꺼내기
-            Job current = queue.poll();
+            // 확인 작업
+            Process process = queue.poll();
             
-            // 우선 순위 확인
-            if(max==current.priority) {
+            // 우선 순위와 현재 우선 순위가 동일한 경우
+            if(process.order==orderNum) {
+                orderNum = orders.isEmpty() ? -1 : orders.poll();
+                count++;
                 
-                // 수행 횟수 증가
-                answer++;
-                
-                // 원하는 작업인 경우
-                if(current.point==location) 
+                // 찾는 위치와 동일한 경우
+                if(process.processNum==location) {
+                    answer = count;
                     break;
-                
-                // 우선 순위 갱신
-                rank[max]--;
-                if(rank[max]==0)
-                    while(rank[max]==0) max--;
+                }
             }
             
-            else {
-                
-                // 다시 넣기
-                queue.offer(current);
-            }
+            // 다시 추가
+            else queue.offer(process);
         }
         
         return answer;
