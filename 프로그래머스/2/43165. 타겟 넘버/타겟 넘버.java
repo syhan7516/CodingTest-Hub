@@ -3,33 +3,31 @@ class Solution {
     // 결과
     public static int answer;
     
-    // 완전 탐색
-    static void solve(int numbers[], int target, int idx, int sum) {
-
+    // 숫자 더하고, 빼기 메서드
+    public static void solve(int count, int target, int[] numbers, int sum) {
+        
         // 연산을 다한 경우
-        if(idx==numbers.length) {
+        if(count==numbers.length) {
             
-            // 원하는 값과 동일한 경우
-            if(sum==target)
+            // 타겟이된 경우
+            if(sum==target) 
                 answer++;
             
             return;
         }
         
-        // 연산을 덜한 경우
-        solve(numbers,target,idx+1,sum+numbers[idx]);
-        solve(numbers,target,idx+1,sum-numbers[idx]);
+        // 더하기
+        solve(count+1,target,numbers,sum+numbers[count]);
         
+        // 빼기
+        solve(count+1,target,numbers,sum-numbers[count]);
     }
     
     public int solution(int[] numbers, int target) {
         
-        // 결과
+        // 숫자 더하고, 빼기
         answer = 0;
-        
-        // 완전 탐색 수행
-        solve(numbers,target,0,0);
-        
+        solve(0,target,numbers,0);
         return answer;
     }
 }
