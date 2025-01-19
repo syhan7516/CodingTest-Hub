@@ -1,62 +1,60 @@
 import java.util.*;
 
-// 연산 클래스
-class Calc implements Comparable<Calc>{
-    int number;
-    int cnt;
+class Calc {
+    int count;
+    int value;
     
-    public Calc(int number, int cnt) {
-        this.number = number;
-        this.cnt = cnt;
-    }
-    
-    public int compareTo(Calc other) {
-        return this.cnt - other.cnt;
+    public Calc(int count, int value) {
+        this.count = count;
+        this.value = value;
     }
 }
 
 class Solution {
     public int solution(int x, int y, int n) {
         
-        // 결과
+        // 결괴
         int answer = -1;
         
-        // 연산 결과 여부 배열
+        // 방문 여부 배열 생성
         boolean visited[] = new boolean[y+1];
         
-        // 연산 큐
-        PriorityQueue<Calc> queue = new PriorityQueue<>();
+        // 큐 생성
+        Queue<Calc> queue = new LinkedList<>();
         
         // 초기 설정
-        queue.offer(new Calc(x,0));
-        visited[0] = true;
+        queue.offer(new Calc(0,x));
+        visited[x] = true;
         
         // 연산 수행
         while(!queue.isEmpty()) {
+        
+            // 확인 값
+            Calc calc = queue.poll();
             
-            // 현재 연산
-            Calc c = queue.poll();
-            
-            // 종료 조건
-            if(c.number==y) {
-                answer = c.cnt;
+            // 목표 값에 도달한 경우
+            if(calc.value==y) {
+                answer = calc.count;
                 break;
             }
             
-            // 연산
-            if((c.number+n)<=y && !visited[c.number+n]) {
-                queue.offer(new Calc(c.number+n,c.cnt+1));
-                visited[c.number+n] = true;
+            // 연산 확인
+            if(calc.value+n<=y && !visited[calc.value+n]) {
+                queue.offer(new Calc(calc.count+1,calc.value+n));
+                visited[calc.value+n] = true;
             }
-            if((c.number*2)<=y && !visited[c.number*2]) {
-                queue.offer(new Calc(c.number*2,c.cnt+1));
-                visited[c.number*2] = true;
+            
+            if(calc.value*2<=y && !visited[calc.value*2]) {
+                queue.offer(new Calc(calc.count+1,calc.value*2));
+                visited[calc.value*2] = true;
             }
-            if((c.number*3)<=y && !visited[c.number*3]) {
-                queue.offer(new Calc(c.number*3,c.cnt+1));
-                visited[c.number*3] = true;
+            
+            if(calc.value*3<=y && !visited[calc.value*3]) {
+                queue.offer(new Calc(calc.count+1,calc.value*3));
+                visited[calc.value*3] = true;
             }
         }
+        
         
         return answer;
     }
