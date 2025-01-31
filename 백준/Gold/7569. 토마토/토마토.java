@@ -5,13 +5,14 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-class Node {
-    int h;
+// 위치 클래스
+class Point {
+    int f;
     int y;
     int x;
 
-    public Node(int h, int y, int x) {
-        this.h = h;
+    public Point(int f, int y, int x) {
+        this.f = f;
         this.y = y;
         this.x = x;
     }
@@ -19,116 +20,98 @@ class Node {
 
 public class Main {
 
-    // 상자의 크기, 토마토 전체 개수, 결과
-    public static int M, N, H, tomatoCnt, answer;
+    // 결과, 가로, 세로, 층, 토마토 개수
+    public static int answer, rowSize, colSize, floorSize, tomatoCount;
 
     // 상자
     public static int box[][][];
 
-    // 토마토 큐
-    public static Queue<Node> queue;
+    // 익은 토마토 위치 저장 큐
+    public static Queue<Point> queue;
 
     // 방향 벡터
-    public static int dy[] = {1,0,-1,0,0,0};
-    public static int dx[] = {0,-1,0,1,0,0};
-    public static int dh[] = {0,0,0,0,1,-1};
+    public static int df[] = {1,-1,0,0,0,0};
+    public static int dy[] = {0,0,0,1,0,-1};
+    public static int dx[] = {0,0,1,0,-1,0};
 
-    // 토마토 익히기 메서드
-    static void solve() {
+    // 토마토 확인 메서드
+    public static void solve() {
 
-        // 일 수
-        int day = 0;
-
-        // 토마토 익히기
         while(!queue.isEmpty()) {
 
-            // 일 수 증가
-            day++;
-
-            // 하루치 토마토 수 체크
             int size = queue.size();
 
-            // 하루치 토마토 익히기
             while(size-->0) {
 
-                // 현재 기준 토마토
-                Node curNode = queue.poll();
+                // 익은 토마토
+                Point point = queue.poll();
 
-                // 여섯 방향 확인
-                for(int d=0; d<6; d++) {
-                    int ny = curNode.y+dy[d];
-                    int nx = curNode.x+dx[d];
-                    int nh = curNode.h+dh[d];
+                // 방향 확인
+                for(int dir=0; dir<6; dir++) {
 
-                    // 범위를 벗어나 경우
-                    if(ny<0 || ny>N-1 || nx<0 || nx>M-1 || nh<0 || nh>H-1)
+                    int nextF = point.f+df[dir];
+                    int nextY = point.y+dy[dir];
+                    int nextX = point.x+dx[dir];
+
+                    // 범위를 벗어난 경우
+                    if(nextF<0 || nextF>floorSize-1 || nextY<0 || nextY>rowSize-1 || nextX<0 || nextX>colSize-1)
                         continue;
 
-                    // 토마토가 이미 익었거나, 텅 빈 경우
-                    if(box[nh][ny][nx]==1 || box[nh][ny][nx]==-1)
-                        continue;
+                    // 익은 토마토이거나 아무것도 없는 경우
+                    if(box[nextF][nextY][nextX]==1 || box[nextF][nextY][nextX]==-1) continue;
 
-                    // 토마토가 익지 않은 경우
-                    queue.offer(new Node(nh,ny,nx));
-                    box[nh][ny][nx] = -1;
-                    tomatoCnt--;
-
-                    // 토마토가 다 익은 경우
-                    if(tomatoCnt==0) {
-                        answer = day;
-                        return;
-                    }
+                    // 안익은 토마토 처리
+                    box[nextF][nextY][nextX] = 1;
+                    queue.add(new Point(nextF,nextY,nextX));
+                    tomatoCount--;
                 }
             }
+
+            answer++;
         }
+
+        if(tomatoCount!=0)
+            answer = -1;
+        else answer--;
     }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 상자의 크기 입력
+        // 가로, 세로, 층 입력
         st = new StringTokenizer(br.readLine());
-        M = Integer.parseInt(st.nextToken());
-        N = Integer.parseInt(st.nextToken());
-        H = Integer.parseInt(st.nextToken());
+        colSize = Integer.parseInt(st.nextToken());
+        rowSize = Integer.parseInt(st.nextToken());
+        floorSize = Integer.parseInt(st.nextToken());
 
         // 상자 생성
-        box = new int[H][N][M];
+        box = new int[floorSize][rowSize][colSize];
 
-        // 토마토 큐 생성
+        // 위치 저장 큐 생성
         queue = new LinkedList<>();
 
-        // 토마토 정보 입력
-        tomatoCnt = 0;
-        answer = 0;
-
-        for(int i=0; i<H; i++) {
-            for(int j=0; j<N; j++) {
+        // 상자 정보 입력
+        for(int floor=0; floor<floorSize; floor++) {
+            for(int rowIndex=0; rowIndex<rowSize; rowIndex++) {
                 st = new StringTokenizer(br.readLine());
-                for(int k=0; k<M; k++) {
-                    box[i][j][k] = Integer.parseInt(st.nextToken());
+                for(int colIndex=0; colIndex<colSize; colIndex++) {
+                    box[floor][rowIndex][colIndex] = Integer.parseInt(st.nextToken());
 
-                    // 만약 익지 않은 토마토인 경우
-                    if(box[i][j][k]==0) {
-                        tomatoCnt++;
+                    if(box[floor][rowIndex][colIndex]==0) {
+                        tomatoCount++;
                     }
 
-                    // 만약 익은 토마토인 경우
-                    if(box[i][j][k]==1) {
-                        queue.offer(new Node(i,j,k));
-                        box[i][j][k] = -1;
+                    if(box[floor][rowIndex][colIndex]==1) {
+                        queue.add(new Point(floor,rowIndex,colIndex));
                     }
                 }
             }
         }
 
-        // 토마토 익히기
+        // 토마토 확인
+        answer = 0;
         solve();
-
-        // 토마토가 남은 경우
-        if(tomatoCnt!=0)
-            answer = -1;
 
         // 결과 출력
         System.out.println(answer);
