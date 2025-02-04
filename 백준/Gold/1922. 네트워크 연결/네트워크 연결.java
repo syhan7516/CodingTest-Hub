@@ -4,108 +4,110 @@ import java.io.InputStreamReader;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-// 전선 클래스
+// 선 클래스
 class Line implements Comparable<Line> {
-    int from;
-    int to;
-    int dist;
+    int start;
+    int end;
+    int value;
 
-    public Line(int from, int to, int dist) {
-        this.from = from;
-        this.to = to;
-        this.dist = dist;
+    public Line(int start, int end, int value) {
+        this.start = start;
+        this.end = end;
+        this.value = value;
     }
 
+
+    @Override
     public int compareTo(Line other) {
-        return this.dist-other.dist;
+        return this.value - other.value;
     }
 }
 
 public class Main {
 
-    // 컴퓨터 수, 선의 수, 결과
-    public static int comCnt, lineCnt, answer;
+    // 결과, 컴퓨터 개수, 선 개수
+    public static int answer, comCount, lineCount;
 
-    // 우선 순위 큐
-    public static PriorityQueue<Line> queue;
-
-    // 대표 번호 저장 배열
+    // 집합 배열
     public static int parent[];
 
-    // Union
-    static void union(int a, int b) {
-        a = find(a);
-        b = find(b);
-        parent[b] = a;
+    // 비용 기준 우선 순위 큐
+    public static PriorityQueue<Line> queue;
+
+    // find
+    public static int find(int node) {
+
+        if(parent[node]==node)
+            return node;
+
+        return parent[node] = find(parent[node]);
     }
 
-    // Find
-    static int find(int com) {
+    // union
+    public static void union(int node1, int node2) {
 
-        // 자기 자신과 동일한 경우
-        if(com==parent[com])
-            return com;
+        node1 = find(node1);
+        node2 = find(node2);
 
-        // 아닌 경우
-        return parent[com] = find(parent[com]);
+        if(node1>node2) parent[node1] = node2;
+        else parent[node2] = node1;
     }
 
-    // 선 연결하기 메서드
-    static void solve() {
+    // 최소 비용 찾기 메서드
+    public static void solve() {
 
-        // 비용
-        int value = 0;
+        // 현재 선 연결 개수
+        int connectCount = 1;
 
-        // 연결 수
-        int connect = 1;
+        // 선 정보 확인
+        while(!queue.isEmpty()) {
 
-        // 선 연결하기
-        while(connect!=comCnt) {
+            // 확인 선
+            Line line = queue.poll();
 
-            // 선 꺼내기
-            Line current = queue.poll();
+            // 순환 여부 확인
+            if(find(line.start)==find(line.end)) continue;
 
-            // 동일한 집합인지 확인
-            if(find(current.from)!=find(current.to)) {
+            // 연결
+            union(line.start,line.end);
 
-                // 선 연결
-                union(current.from, current.to);
-                value += current.dist;
-                connect++;
-            }
+            // 연결 개수 증가
+            connectCount++;
+            answer += line.value;
+
+            // 모두 연결한 경우
+            if(connectCount==comCount)
+                return;
         }
-
-        answer = value;
     }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 컴퓨터 수 입력
-        comCnt = Integer.parseInt(br.readLine());
+        // 컴퓨터 개수, 선 개수 입력
+        comCount = Integer.parseInt(br.readLine());
+        lineCount = Integer.parseInt(br.readLine());
 
-        // 연결 선 수 입력
-        lineCnt = Integer.parseInt(br.readLine());
-
-        // 우선 순위 큐 생성
+        // 비용 기준 우선 순위 큐 생성
         queue = new PriorityQueue<>();
 
-        // 관계 정보 입력
-        for(int i=0; i<lineCnt; i++) {
-            st = new StringTokenizer(br.readLine());
-            int from = Integer.parseInt(st.nextToken());
-            int to = Integer.parseInt(st.nextToken());
-            int dist = Integer.parseInt(st.nextToken());
-            queue.offer(new Line(from,to,dist));
+        // 집합 배열 생성 및 초기화
+        parent = new int[comCount+1];
+        for(int index=0; index<=comCount; index++) {
+            parent[index] = index;
         }
 
-        // 대표 번호 배열 초기화
-        parent = new int[comCnt+1];
-        for(int i=1; i<=comCnt; i++)
-            parent[i] = i;
+        // 선 정보 입력
+        for(int index=0; index<lineCount; index++) {
+            st = new StringTokenizer(br.readLine());
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            int value = Integer.parseInt(st.nextToken());
+            queue.offer(new Line(start,end,value));
+        }
 
-        // 선 연결하기
+        // 최소 비용 찾기
         answer = 0;
         solve();
 
