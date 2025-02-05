@@ -1,2 +1,2 @@
-select count(distinct(name)) name
-from animal_ins
+SELECT COUNT(DISTINCT NAME) AS COUNT
+FROM ANIMAL_INS
