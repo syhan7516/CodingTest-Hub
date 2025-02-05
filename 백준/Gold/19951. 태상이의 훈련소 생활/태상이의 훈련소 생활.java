@@ -1,76 +1,65 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    // 연변장 크기, 조교 수
-    public static int size, assistantCount;
+    // 장소 크기, 조교 수
+    public static int areaSize, saramCount;
 
-    // 연변장
-    public static int ground[];
-
-    // 합 배열
-    public static int sum[];
-
-    // 연변장 높이 확인 메서드
-    public static void solve() {
-
-        // 추가 높이
-        int addValue = 0;
-
-        // 연변장 순회
-        for(int index=1; index<=size; index++) {
-
-            // 높이 변화가 있는 경우
-            if(sum[index]!=0)
-                addValue += sum[index];
-
-            // 높이 맞추기
-            ground[index] += addValue;
-        }
-    }
+    // 장소, 작업, 결과 배열
+    public static int[] area, jobs, answer;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
         StringBuilder sb = new StringBuilder();
 
-        // 연변장 크기, 조교 수 입력
+        // 장소 크기, 조교 수 입력
         st = new StringTokenizer(br.readLine());
-        size = Integer.parseInt(st.nextToken());
-        assistantCount = Integer.parseInt(st.nextToken());
+        areaSize = Integer.parseInt(st.nextToken());
+        saramCount = Integer.parseInt(st.nextToken());
 
-        // 연변장 배열 생성
-        ground = new int[size+1];
+        // 배열 생성
+        area = new int[areaSize+1];
+        jobs = new int[areaSize+2];
+        answer = new int[areaSize+1];
 
-        // 합 배열 생성
-        sum = new int[size+2];
-
-        // 연변장 정보 입력
+        // 장소 정보 입력
         st = new StringTokenizer(br.readLine());
-        for(int index=1; index<=size; index++)
-            ground[index] = Integer.parseInt(st.nextToken());
-
-        // 지시 정보 입력
-        for(int order=0; order<assistantCount; order++) {
-            st = new StringTokenizer(br.readLine());
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
-            int height = Integer.parseInt(st.nextToken());
-            sum[start] += height;
-            sum[end+1] -= height;
+        for(int index=1; index<=areaSize; index++) {
+            area[index] = Integer.parseInt(st.nextToken());
         }
 
-        // 연변장 높이 확인
-        solve();
+        // 조교 지시 정보 입력
+        for(int index=0; index<saramCount; index++) {
+            st = new StringTokenizer(br.readLine());
+            int startIndex = Integer.parseInt(st.nextToken());
+            int endIndex = Integer.parseInt(st.nextToken());
+            int height = Integer.parseInt(st.nextToken());
+            jobs[startIndex] += height;
+            jobs[endIndex+1] += -height;
+        }
 
-        // 최종 높이 저장
-        for(int index=1; index<=size; index++)
-            sb.append(ground[index]).append(" ");
+        // 작업 수행
+        int currentHeight = 0;
+        for(int index=1; index<=areaSize; index++) {
+
+            // 지시가 있는 구간인 경우
+            if(jobs[index]!=Integer.MAX_VALUE) {
+                currentHeight += jobs[index];
+            }
+
+            // 작업 수행
+            answer[index] = area[index]+currentHeight;
+        }
 
         // 결과 출력
+        for(int index=1; index<=areaSize; index++) {
+            sb.append(answer[index]).append(" ");
+        }
         System.out.println(sb.toString());
     }
 }
