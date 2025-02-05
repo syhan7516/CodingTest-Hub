@@ -6,49 +6,58 @@ import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 // 보석 클래스
-class Jewelry {
+class Jewel {
     int weight;
-    int price;
+    int value;
 
-    public Jewelry(int weight, int price) {
+    public Jewel(int weight, int value) {
         this.weight = weight;
-        this.price = price;
+        this.value = value;
     }
 }
 
 public class Main {
 
-    // 보석 가격의 합
+    // 결과
     public static long answer;
 
     // 보석 개수, 가방 개수
-    public static int meterialCnt, bagCnt;
-
-    // 가방 무게 배열
-    public static int bags[];
+    public static int jewelCount, bagCount;
 
     // 보석 배열
-    public static Jewelry jewelry[];
+    public static Jewel[] jewels;
 
-    // 가방 넣기 우선 순위 큐
-    public static PriorityQueue<Jewelry> queue;
+    // 가방 배열
+    public static int bags[];
 
-    // 보석 담기 메서드
-    static void solve() {
+    // 보석 훔치기 메서드
+    public static void solve() {
 
-        int idx = 0;
+        // 가방 가벼운 순으로 정렬
+        Arrays.sort(bags);
 
-        // 가방 확인
-        for(int i=0; i<bagCnt; i++) {
+        // 보석 저장 우선 순위 큐 생성
+        PriorityQueue<Jewel> queue = new PriorityQueue<>((a,b) -> b.value - a.value);
 
-            // 현재 가방에서 가장 비싼 보석 확인
-            while(idx<meterialCnt && jewelry[idx].weight<=bags[i]) {
-                queue.add(jewelry[idx]);
-                idx++;
+        // 보석 가벼운 순으로 정렬
+        Arrays.sort(jewels, (a,b) -> Integer.compare(a.weight, b.weight));
+
+        // 보석 위치
+        int index = 0;
+
+        // 가방 순회
+        for(int bag=0; bag<bagCount; bag++) {
+
+            // 가방 무게에 가능한 보석 확인
+            while(index<jewelCount && jewels[index].weight<=bags[bag]) {
+                queue.offer(jewels[index]);
+                index++;
             }
 
-            if(!queue.isEmpty())
-                answer += queue.poll().price;
+            // 가장 큰 비용의 보석 꺼내기
+            if(!queue.isEmpty()) {
+                answer += queue.poll().value;
+            }
         }
     }
 
@@ -58,34 +67,27 @@ public class Main {
 
         // 보석, 가방 개수 입력
         st = new StringTokenizer(br.readLine());
-        meterialCnt = Integer.parseInt(st.nextToken());
-        bagCnt = Integer.parseInt(st.nextToken());
+        jewelCount = Integer.parseInt(st.nextToken());
+        bagCount = Integer.parseInt(st.nextToken());
 
-        // 보석 우선 순위 큐, 가방 넣기 우선 순위 큐 생성
-        jewelry = new Jewelry[meterialCnt];
-        queue = new PriorityQueue<>((g1, g2)-> Integer.compare(g2.price, g1.price));
+        // 배열 생성
+        jewels = new Jewel[jewelCount];
+        bags = new int[bagCount];
 
         // 보석 정보 입력
-        for(int i=0; i<meterialCnt; i++) {
+        for(int index=0; index<jewelCount; index++) {
             st = new StringTokenizer(br.readLine());
             int weight = Integer.parseInt(st.nextToken());
-            int price = Integer.parseInt(st.nextToken());
-            jewelry[i] = new Jewelry(weight,price);
+            int value = Integer.parseInt(st.nextToken());
+            jewels[index] = new Jewel(weight,value);
         }
 
-        // 가방 무게 배열 생성
-        bags = new int[bagCnt];
-
-        // 가방 무게 입력
-        for(int i=0; i<bagCnt; i++) {
-            bags[i] = Integer.parseInt(br.readLine());
+        // 가방 정보 입력
+        for(int index=0; index<bagCount; index++) {
+            bags[index] = Integer.parseInt(br.readLine());
         }
 
-        // 무게 정렬
-        Arrays.sort(bags);
-        Arrays.sort(jewelry, (g1, g2)-> Integer.compare(g1.weight, g2.weight));
-
-        // 보석 담기
+        // 보석 훔치기
         answer = 0;
         solve();
 
