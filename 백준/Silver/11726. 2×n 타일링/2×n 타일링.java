@@ -1,24 +1,27 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
 
-        // 숫자 N 입력
-        int N = Integer.parseInt(br.readLine());
+        // 크기 입력
+        int size = Integer.parseInt(br.readLine());
 
-        // 전체 크기
-        int room[] = new int[1001];
-        room[1] = 1;
-        room[2] = 2;
+        // 타일 배열 생성
+        int tile[] = new int[1001];
+        tile[1] = 1;
+        tile[2] = 2;
 
-        // 점화식
-        for(int r=3; r<=N; r++) {
-            room[r] = (room[r-1]+room[r-2])%10007;
+        // 개수 구하기
+        for(int count=3; count<=size; count++) {
+            tile[count] = (tile[count-1]+tile[count-2])%10007;
         }
 
         // 결과 출력
-        System.out.println(room[N]);
+        System.out.println(tile[size]);
     }
 }
