@@ -5,11 +5,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-class Node {
+// 위치 클래스
+class Point {
     int y;
     int x;
 
-    public Node(int y, int x) {
+    public Point(int y, int x) {
         this.y = y;
         this.x = x;
     }
@@ -17,48 +18,49 @@ class Node {
 
 public class Main {
 
-    // 밭의 가로, 세로 길이, 배추의 수, 결과
-    public static int row,col,cnt,answer;
+    // 결과, 가로, 세로 크기, 배추 개수
+    public static int answer, rowSize, colSize, plantCount;
 
-    // 밭
+    // 땅 배열
     public static int ground[][];
 
     // 방향 벡터
-    public static int dy[] = {1,0,-1,0};
-    public static int dx[] = {0,-1,0,1};
+    public static int dy[] = {0,1,0,-1};
+    public static int dx[] = {1,0,-1,0};
 
-    // 벌레 이동 메서드
-    static void solve(int r, int c) {
+    // 배추 위치 저장 큐
+    public static Queue<Point> queue;
 
-        // 이동 큐 생성
-        Queue<Node> queue = new LinkedList<>();
+    // 방문 여부 배열
+    public static boolean visited[][];
 
-        // 첫 노드 처리
-        queue.offer(new Node(r,c));
-        ground[r][c] = 0;
+    // 지렁이 개수 확인 메서드
+    public static void solve(int rowIndex, int colIndex) {
 
-        // 벌레 버뜨리기
+        // 시작점 처리
+        visited[rowIndex][colIndex] = true;
+        queue.offer(new Point(rowIndex, colIndex));
+
+        // 배추 확인
         while(!queue.isEmpty()) {
 
-            // 현재 노드
-            Node curNode = queue.poll();
+            // 확인 배추
+            Point point = queue.poll();
 
-            // 네방향 탐색
-            for(int d=0; d<4; d++) {
-                int ny = curNode.y+dy[d];
-                int nx = curNode.x+dx[d];
+            // 네 방향 확인
+            for(int dir=0; dir<4; dir++) {
+                int nextY = point.y+dy[dir];
+                int nextX = point.x+dx[dir];
 
-                // 범위를 넘은 경우
-                if(ny<0 || ny>row-1 || nx<0 || nx>col-1)
-                    continue;
+                // 범위 확인
+                if(nextY<0 || nextY>rowSize-1 || nextX<0 || nextX>colSize-1) continue;
 
-                // 배추가 아닌 경우
-                if(ground[ny][nx]!=1)
-                    continue;
+                // 이미 방문했거나, 배추가 아닌 경우
+                if(visited[nextY][nextX] || ground[nextY][nextX]!=1) continue;
 
-                // 배추인 경우
-                queue.offer(new Node(ny,nx));
-                ground[ny][nx] = 0;
+                // 탐색 대상으로 추가
+                visited[nextY][nextX] = true;
+                queue.offer(new Point(nextY, nextX));
             }
         }
     }
@@ -66,46 +68,51 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
         // 테스트 케이스 수 입력
-        int caseNum = Integer.parseInt(br.readLine());
+        int caseCount = Integer.parseInt(br.readLine());
 
-        // 케이스 수 만큼 수행
-        for(int caseIdx=0; caseIdx<caseNum; caseIdx++) {
+        // 케이스 수행
+        for(int caseIndex=0; caseIndex<caseCount; caseIndex++) {
 
-            // 가로, 세로, 배추 수 입력
+            // 가로, 세로, 배추 개수 입력
             st = new StringTokenizer(br.readLine());
-            row = Integer.parseInt(st.nextToken());
-            col = Integer.parseInt(st.nextToken());
-            cnt = Integer.parseInt(st.nextToken());
+            rowSize = Integer.parseInt(st.nextToken());
+            colSize = Integer.parseInt(st.nextToken());
+            plantCount = Integer.parseInt(st.nextToken());
 
-            // 밭 만들기
-            ground = new int[row][col];
+            // 땅 생성
+            ground = new int[rowSize][colSize];
 
-            // 배추 위치 정보 입력
-            for(int i=0; i<cnt; i++) {
+            // 배추 위치 입력
+            for(int index=0; index<plantCount; index++) {
                 st = new StringTokenizer(br.readLine());
-                int y = Integer.parseInt(st.nextToken());
-                int x = Integer.parseInt(st.nextToken());
-                ground[y][x] = 1;
+                int rowPoint = Integer.parseInt(st.nextToken());
+                int colPoint = Integer.parseInt(st.nextToken());
+                ground[rowPoint][colPoint] = 1;
             }
 
-            // 벌레 심기
+            // 방문 여부 배열 생성
+            visited = new boolean[rowSize][colSize];
+
+            // 배추 위치 저장 큐 생성
+            queue = new LinkedList<>();
+
+            // 지렁이 개수 확인
             answer = 0;
-
-            for(int i=0; i<row; i++) {
-                for(int j=0; j<col; j++) {
-
-                    // 방문하지 않은 배추인 경우
-                    if(ground[i][j]==1) {
+            for(int rowIndex=0; rowIndex<rowSize; rowIndex++) {
+                for(int colIndex=0; colIndex<colSize; colIndex++) {
+                    if(!visited[rowIndex][colIndex] && ground[rowIndex][colIndex]==1) {
                         answer++;
-                        solve(i,j);
+                        solve(rowIndex,colIndex);
                     }
                 }
             }
-
-            // 결과 출력
-            System.out.println(answer);
+            sb.append(answer).append("\n");
         }
+
+        // 결과 출력
+        System.out.println(sb.toString());
     }
 }
