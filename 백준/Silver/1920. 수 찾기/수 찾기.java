@@ -6,58 +6,71 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    // 배열 원소 수
-    public static int cnt1, cnt2;
+    // 존재 여부 확인 메서드
+    public static boolean solve(int nums[], int number) {
 
-    // 기존 배열
-    public static int [] arr;
+        // 범위 설정
+        int left = 0;
+        int right = nums.length-1;
 
-    // 수 찾기 메서드
-    static int solve(int start, int end, int target) {
+        // 존재 여부 탐색
+        while(left<=right) {
 
-        while(start<=end) {
+            // 값 설정
+            int mid = (left+right)/2;
 
-            int mid = (start+end)/2;
+            // 값을 찾은 경우
+            if(nums[mid]==number) return true;
 
-            if(arr[mid]==target)
-                return 1;
+            // 값보다 작은 경우
+            else if(nums[mid]<number)
+                left = mid+1;
 
-            else if(arr[mid]<target)
-                start = mid+1;
-
-            else
-                end = mid-1;
+            // 값보다 큰 경우
+            else right = mid-1;
         }
 
-        return 0;
+        return false;
     }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
-        // 배열 생성
-        st = new StringTokenizer(br.readLine());
-        cnt1 = Integer.parseInt(st.nextToken());
-        arr = new int[cnt1];
+        // 보유한 수 개수 입력
+        int count = Integer.parseInt(br.readLine());
 
-        // 배열 정보 입력
+        // 보유 수 저장 배열 생성
+        int nums[] = new int[count];
+
+        // 보유 수 정보 입력
         st = new StringTokenizer(br.readLine());
-        for(int i=0; i<cnt1; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
+        for(int index=0; index<count; index++) {
+            nums[index] = Integer.parseInt(st.nextToken());
         }
 
-        // 찾을 수의 개수
-        cnt2 = Integer.parseInt(br.readLine());
+        // 보유 수 정렬
+        Arrays.sort(nums);
 
-        // 배열 정렬
-        Arrays.sort(arr);
+        // 확인 수 개수 입력
+        int checkCount = Integer.parseInt(br.readLine());
 
-        // 원소 찾기
+        // 확인 수 입력
         st = new StringTokenizer(br.readLine());
-        for(int i=0; i<cnt2; i++) {
-            int num = Integer.parseInt(st.nextToken());
-            System.out.println(solve(0,arr.length-1,num));
+        for(int index=0; index<checkCount; index++) {
+
+            // 확인 수
+            int checkNum = Integer.parseInt(st.nextToken());
+
+            // 존재 여부 확인
+            if(solve(nums,checkNum)) sb.append(1);
+            else sb.append(0);
+
+            sb.append("\n");
         }
+
+        // 결과 출력
+        System.out.println(sb.toString());
     }
 }
