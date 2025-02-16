@@ -1,61 +1,67 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    // 다이나믹 테이블
-    public static int[][][] D;
+    // 값 저장 배열
+    public static int DP[][][];
 
-    // 재귀 함수 정의
-    static int recursion(int a, int b, int c) {
-        if(a <= 0 || b <= 0 || c <= 0) {
+    // 확인
+    public static int solve(int a, int b, int c) {
+
+        if(a<=0 || b<=0 || c<=0)
             return 1;
+
+        if(a>20 || b>20 || c>20) {
+            if(DP[20][20][20] != -1) return DP[a][b][c] = DP[20][20][20];
+            else return DP[a][b][c] = solve(20,20,20);
         }
 
-        if(D[a][b][c]!=0) {
-            return D[a][b][c];
+        if(a<b && b<c) {
+
+            if(DP[a][b][c] != -1) return  DP[a][b][c];
+            else return DP[a][b][c] = solve(a,b,c-1)+solve(a,b-1,c-1)-solve(a,b-1,c);
         }
 
-        if(a > 20 || b > 20 || c > 20) {
-            return D[a][b][c] = recursion(20,20,20);
-        }
-
-        if(a < b && b < c) {
-            return D[a][b][c] = recursion(a,b,c-1) + recursion(a, b-1, c-1) - recursion(a, b-1, c);
-        }
-
-        return D[a][b][c] = recursion(a-1,b,c) + recursion(a-1,b-1,c) + recursion(a-1,b,c-1) - recursion(a-1,b-1,c-1);
+        if(DP[a][b][c] != -1) return  DP[a][b][c];
+        else return DP[a][b][c] = solve(a-1,b,c)+solve(a-1,b-1,c)+solve(a-1,b,c-1)-solve(a-1,b-1,c-1);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
-        // a, b, c 초기화
-        int a = 0, b = 0, c = 0;
+        // 값 저장 배열 생성
+        DP = new int[51][51][51];
+        for(int i=0; i<51; i++) {
+            for(int j=0; j<51; j++) {
+                for(int k=0; k<51; k++) {
+                    DP[i][j][k] = -1;
+                }
+            }
+        }
 
-        // DP 테이블 초기화
-        D = new int[51][51][51];
-
-        // 케이스 반복 수행
         while(true) {
 
-            // a, b, c 입력
+            // 세 수 입력
             st = new StringTokenizer(br.readLine());
-            a = Integer.parseInt(st.nextToken());
-            b = Integer.parseInt(st.nextToken());
-            c = Integer.parseInt(st.nextToken());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
 
-            // 종료 조건
-            if(a==-1 && b==-1 && c==-1)
+            // 모두 -1인 경우
+            if(a==-1 && b==-1 && c==-1) {
+                System.out.println(sb.toString());
                 break;
+            }
 
-            // 재귀 호출
-            int result = recursion(a,b,c);
-
-            // 결과 출력
-            System.out.println("w("+a+", "+b+", "+c+") = "+result);
+            // 문제 저장
+            sb.append("w(").append(a+", ").append(b+", ").append(c).append(") = ");
+            sb.append(solve(a,b,c)).append("\n");
         }
     }
 }
