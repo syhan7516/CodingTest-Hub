@@ -1,53 +1,64 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-	
-	// 전체 숫자 개수, 선택할 수의 개수
-	public static int totalCnt, selectCnt;
-	// 선택 확인 배열
-	public static boolean v[];
-	
-	// 숫자 선택하기 메서드
-	static void solve(int depth, String res) {
-		
-		// 종료 조건
-		if(depth==selectCnt) {
-			System.out.println(res);
-			return;
-		}
-		
-		// 서치
-		for(int n=1; n<=totalCnt; n++) {
-			
-			// 이미 선택된 경우
-			if(v[n]) continue;
-			
-			// 아닌 경우
-			v[n] = true;
-			solve(depth+1,res+n+" ");
-			v[n] = false;
-		}
-	}
-	
-	public static void main(String[] args) {
-		
-		Scanner sc = new Scanner(System.in);
-		
-		// 전체 숫자 개수 입력
-		totalCnt = sc.nextInt();
-		
-		// 선택할 수의 개수 입력
-		selectCnt = sc.nextInt();
-		
-		// 선택 확인 배열, 결과 배열 생성
-		v = new boolean[totalCnt+1];
-		
-		// 숫자 선택하기
-		for(int n=1; n<=totalCnt; n++) {
-			
-			v[n] = true;
-			solve(1,n+" ");
-			v[n] = false;
-		}
-	}
+
+    // 숫자 개수, 선택 개수
+    public static int numCount, selectedCount;
+
+    // 방문 여부 배열
+    public static boolean visited[];
+
+    // 숫자 배열
+    public static int arr[];
+
+    // 결과 저장 빌더
+    public static StringBuilder sb;
+
+    // 수열 구하기 메서드
+    public static void solve(int count) {
+
+        // 모두 선택한 경우
+        if(count==selectedCount) {
+            for(int index=0;index<selectedCount;index++)
+                sb.append(arr[index]+" ");
+            sb.append("\n");
+            return;
+        }
+
+        // 선택하기
+        for(int index=1; index<=numCount; index++) {
+            if(!visited[index]) {
+                visited[index] = true;
+                arr[count] = index;
+                solve(count+1);
+                visited[index] = false;
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 숫자 개수, 선택 개수 입력
+        st = new StringTokenizer(br.readLine());
+        numCount = Integer.parseInt(st.nextToken());
+        selectedCount = Integer.parseInt(st.nextToken());
+
+        // 방문 여부 배열 생성
+        visited = new boolean[numCount+1];
+
+        // 숫자 배열 생성
+        arr = new int[numCount];
+
+        // 수열 구하기
+        sb = new StringBuilder();
+        solve(0);
+
+        // 결과 출력
+        System.out.println(sb.toString());
+    }
 }
