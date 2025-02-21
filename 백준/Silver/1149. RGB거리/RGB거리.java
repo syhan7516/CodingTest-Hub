@@ -1,61 +1,52 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-	
-	// 집의 수, 결과
-	public static int homeCnt, result;
-	
-	// 색깔 비용 배열
-	public static int color[][];
-	
-	// 집에 대한 색깔 비용 배열
-	public static int DP[][];
-	
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		
-		// 집의 수 입력
-		homeCnt = Integer.parseInt(br.readLine());
-		
-		// 색깔 비용 배열 생성
-		color = new int[homeCnt+1][4];
-		
-		// 색깔 비용 입력
-		for(int i=1; i<=homeCnt; i++) {
-			st = new StringTokenizer(br.readLine());
-			for(int j=1; j<=3; j++) {
-				color[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-		
-		// 집에 대한 색깔 비용 배열
-		DP = new int[homeCnt+1][4];
-		
-		// 첫 집 색칠하기
-		DP[1][1] = color[1][1];
-		DP[1][2] = color[1][2];
-		DP[1][3] = color[1][3];
-		
-		// 집 색칠하기
-		for(int i=2; i<=homeCnt; i++) {
-			
-			// 빨간색으로 색칠하기
-			DP[i][1] = Math.min(color[i][1]+DP[i-1][2],color[i][1]+DP[i-1][3]);
-			
-			// 초록색으로 색칠하기
-			DP[i][2] = Math.min(color[i][2]+DP[i-1][1],color[i][2]+DP[i-1][3]);
-			
-			// 파란색으로 색칠하기
-			DP[i][3] = Math.min(color[i][3]+DP[i-1][1],color[i][3]+DP[i-1][2]);
-		}
-		
-		// 최소 비용 결과 저장
-		result = Math.min(DP[homeCnt][1],Math.min(DP[homeCnt][2],DP[homeCnt][3]));
-		
-		// 결과 출력
-		System.out.println(result);
-	}
+
+    // MOD
+    public static final int MOD = 15746;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 집 개수 입력
+        int houseCount = Integer.parseInt(br.readLine());
+
+        // 비용 저장 배열 생성
+        int values[][] = new int[houseCount+1][3];
+
+        // 비용 입력
+        for(int index=1; index<=houseCount; index++) {
+            st = new StringTokenizer(br.readLine());
+            values[index][0] = Integer.parseInt(st.nextToken());
+            values[index][1] = Integer.parseInt(st.nextToken());
+            values[index][2] = Integer.parseInt(st.nextToken());
+        }
+
+        // 비용 합 저장 배열 생성
+        int DP[][] = new int[1001][3];
+        DP[1][0] = values[1][0];
+        DP[1][1] = values[1][1];
+        DP[1][2] = values[1][2];
+
+        // 비용 합 구하기
+        for(int index=2; index<=houseCount; index++) {
+            DP[index][0] = Math.min(DP[index-1][1],DP[index-1][2])+values[index][0];
+            DP[index][1] = Math.min(DP[index-1][0],DP[index-1][2])+values[index][1];
+            DP[index][2] = Math.min(DP[index-1][0],DP[index-1][1])+values[index][2];
+        }
+
+        // 결과 저장
+        int answer = Integer.MAX_VALUE;
+        for(int index=0; index<3; index++) {
+            answer = Math.min(answer,DP[houseCount][index]);
+        }
+
+        // 결과 출력
+        System.out.println(answer);
+    }
 }
