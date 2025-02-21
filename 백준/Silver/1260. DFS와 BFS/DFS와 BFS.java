@@ -5,63 +5,86 @@ import java.util.*;
 
 public class Main {
 
-    // 결과 저장
-    public static StringBuilder sb = new StringBuilder();
+    // 결과 저장 빌더
+    public static StringBuilder sb;
 
-    // 정점의 개수, 간선의 개수, 연결 요소 개수, 시작 정점
-    public static int vCnt, eCnt, start;
-
-    // 연결 정보 리스트
-    public static ArrayList<ArrayList<Integer>> list;
+    // 정점의 개수, 간선의 개수, 시작 정점
+    public static int nodeCount, edgeCount, startNode;
 
     // 방문 여부 배열
     public static boolean visited[];
 
-    // 연결 요소 찾기 메서드 - DFS
-    static void dfs(int node) {
+    // 관계 리스트
+    public static ArrayList<ArrayList<Integer>> relations;
 
-        // 방문 노드 처리
-        visited[node] = true;
-        sb.append(node).append(" ");
+    public static void solve(int node) {
 
         // 정렬
-        Collections.sort(list.get(node));
+        Collections.sort(relations.get(node));
+        sb.append(node).append(" ");
 
-        for(int i=0; i<list.get(node).size(); i++) {
+        // 연결 노드 확인
+        for(int index=0; index<relations.get(node).size(); index++) {
 
-            // 연결된 요소가 미방문 정점인 경우
-            if(!visited[list.get(node).get(i)]) {
-                visited[list.get(node).get(i)] = true;
-                dfs(list.get(node).get(i));
+            // 탐색 노드
+            int nextNode = relations.get(node).get(index);
+
+            // 방문 여부 확인
+            if(!visited[nextNode]) {
+                visited[nextNode] = true;
+                solve(nextNode);
             }
         }
     }
 
-    // 연결 요소 찾기 메서드 - BFS
-    static void bfs(int node) {
+    // dfs
+    public static void dfs() {
+
+        // 빌더 생성
+        sb = new StringBuilder();
+
+        // 방문 여부 배열 생성
+        visited = new boolean[nodeCount+1];
+
+        // 시작 지점 설정
+        visited[startNode] = true;
+        solve(startNode);
+    }
+
+    // bfs
+    public static void bfs() {
+
+        // 빌더 생성
+        sb = new StringBuilder();
 
         // 큐 생성
         Queue<Integer> queue = new LinkedList<>();
 
-        // 시작 정점 처리
-        sb.append(start).append(" ");
-        queue.offer(start);
-        visited[start] = true;
+        // 방문 여부 배열 생성
+        visited = new boolean[nodeCount+1];
 
-        // 연결 요소 확인
+        // 시작 지점 설정
+        queue.offer(startNode);
+        visited[startNode] = true;
+        sb.append(startNode).append(" ");
+
+        // 탐색
         while(!queue.isEmpty()) {
 
-            // 확인 정점
-            int current = queue.poll();
+            // 현재 노드
+            int currentNode = queue.poll();
 
-            // 정점과 연결된 정점 확인
-            for(int i=0; i<list.get(current).size(); i++) {
+            // 연결 노드 확인
+            for(int index=0; index<relations.get(currentNode).size(); index++) {
 
-                // 연결 요소가 미방문인 경우
-                if(!visited[list.get(current).get(i)]) {
-                    queue.offer(list.get(current).get(i));
-                    visited[list.get(current).get(i)] = true;
-                    sb.append(list.get(current).get(i)).append(" ");
+                // 탐색 노드
+                int nextNode = relations.get(currentNode).get(index);
+
+                // 방문 여부 확인
+                if(!visited[nextNode]) {
+                    visited[nextNode] = true;
+                    sb.append(nextNode).append(" ");
+                    queue.offer(nextNode);
                 }
             }
         }
@@ -71,37 +94,33 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 정점, 간선 개수 입력
+        // 정점의 개수, 간선의 개수 입력
         st = new StringTokenizer(br.readLine());
-        vCnt = Integer.parseInt(st.nextToken());
-        eCnt = Integer.parseInt(st.nextToken());
-        start = Integer.parseInt(st.nextToken());
+        nodeCount = Integer.parseInt(st.nextToken());
+        edgeCount = Integer.parseInt(st.nextToken());
+        startNode = Integer.parseInt(st.nextToken());
 
-        // 연결 정보 리스트 생성
-        list = new ArrayList<>();
-        for(int i=0; i<=vCnt; i++)
-            list.add(new ArrayList<>());
+        // 관계 리스트 생성 및 초기화
+        relations = new ArrayList<>();
+        for(int node=0; node<=nodeCount; node++) {
+            relations.add(new ArrayList<>());
+        }
 
-        // 연결 정보 입력
-        for(int i=0; i<eCnt; i++) {
+        // 관계 정보 입력
+        for(int edge=0; edge<edgeCount; edge++) {
             st = new StringTokenizer(br.readLine());
             int from = Integer.parseInt(st.nextToken());
             int to = Integer.parseInt(st.nextToken());
-            list.get(from).add(to);
-            list.get(to).add(from);
+            relations.get(from).add(to);
+            relations.get(to).add(from);
         }
 
-        // 연결 요소 찾기 - DFS
-        visited = new boolean[vCnt+1];
-        dfs(start);
+        // DFS
+        dfs();
+        System.out.println(sb.toString());
 
-        sb.append("\n");
-
-        // 연결 요소 찾기 - BFS
-        visited = new boolean[vCnt+1];
-        bfs(start);
-
-        // 결과 출력
+        // BFS
+        bfs();
         System.out.println(sb.toString());
     }
 }
