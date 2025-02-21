@@ -1,49 +1,41 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
 
-    public static int result;
-    public static int size;
-    public static int triangle[][];
-    public static int dp[][] = new int[501][501];
+        // 삼각형 크기 입력
+        int size = Integer.parseInt(br.readLine());
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        result = 0;
+        // 삼각형 배열, 합 배열 생성
+        int triangle[][] = new int[size+1][size+1];
+        int DP[][] = new int[size+1][size+1];
 
-        // 삼각형 크기
-        size = scanner.nextInt();
-        // 삼각형 데이터 입력
-        triangle = new int[size+1][size+1];
-        for(int a=1; a<=size; a++) {
-            for(int b=0; b<a; b++) {
-                int num = scanner.nextInt();
-                triangle[a][b] = num;
+        // 삼각형 정보 입력
+        for(int height=1; height<=size; height++){
+            st = new StringTokenizer(br.readLine());
+            for(int width=1; width<=height; width++){
+                triangle[height][width] = Integer.parseInt(st.nextToken());
             }
         }
-        // 기본 셋팅
-        dp[1][0] = triangle[1][0];
 
-        // 층의 수 선택
-        for(int floor=2; floor<=size; floor++) {
-            for(int locate=0; locate<floor; locate++) {
-                if(locate==0) {
-                    dp[floor][locate] = triangle[floor][locate] + dp[floor-1][locate];
-                }
-                else if(locate==floor-1) {
-                    dp[floor][locate] = triangle[floor][locate] + dp[floor-1][locate-1];
-                }
-                else {
-                    dp[floor][locate] = triangle[floor][locate] + Integer.max(dp[floor-1][locate-1],dp[floor-1][locate]);
-                }
+        // 초기 설정
+        DP[1][1] = triangle[1][1];
+
+        // 각 위치 최대 합구하기
+        int answer = DP[1][1];
+        for(int height=2; height<=size; height++){
+            for(int width=1; width<=height; width++){
+                DP[height][width] = Math.max(DP[height-1][width-1],DP[height-1][width])+triangle[height][width];
+                answer = Math.max(answer,DP[height][width]);
             }
         }
 
         // 결과 출력
-        for(int idx=0; idx<size; idx++) {
-            result = Integer.max(result,dp[size][idx]);
-        }
-
-        System.out.println(result);
+        System.out.println(answer);
     }
 }
