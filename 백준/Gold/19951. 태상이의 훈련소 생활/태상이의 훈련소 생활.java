@@ -1,65 +1,73 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    // 장소 크기, 조교 수
-    public static int areaSize, saramCount;
+    // 칸 수, 조교 수
+    public static int areaCount, trainerCount;
 
-    // 장소, 작업, 결과 배열
-    public static int[] area, jobs, answer;
+    // 구역 배열, 누적 배열
+    public static int ground[], sum[];
+
+    // 구역, 누적 배열 생성 메서드
+    public static void createArray() {
+        ground = new int[areaCount+1];
+        sum = new int[areaCount+2];
+    }
+
+    // 구역 높이 입력
+    public static void inputAreaHeight(StringTokenizer st) {
+
+        for(int index=1; index<=areaCount; index++) {
+            ground[index] = Integer.parseInt(st.nextToken());
+        }
+    }
+
+    // 조교 명령 입력 메서드
+    public static void inputTrainerOrder(StringTokenizer st) {
+        int start = Integer.parseInt(st.nextToken());
+        int end = Integer.parseInt(st.nextToken());
+        int height = Integer.parseInt(st.nextToken());
+        sum[start] += height;
+        sum[end+1] += -height;
+    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
         StringBuilder sb = new StringBuilder();
 
-        // 장소 크기, 조교 수 입력
+        // 칸, 조교 수 입력
         st = new StringTokenizer(br.readLine());
-        areaSize = Integer.parseInt(st.nextToken());
-        saramCount = Integer.parseInt(st.nextToken());
+        areaCount = Integer.parseInt(st.nextToken());
+        trainerCount = Integer.parseInt(st.nextToken());
 
-        // 배열 생성
-        area = new int[areaSize+1];
-        jobs = new int[areaSize+2];
-        answer = new int[areaSize+1];
+        // 구역, 누적 배열 생성
+        createArray();
 
-        // 장소 정보 입력
-        st = new StringTokenizer(br.readLine());
-        for(int index=1; index<=areaSize; index++) {
-            area[index] = Integer.parseInt(st.nextToken());
+        // 구역 높이 입력
+        inputAreaHeight(new StringTokenizer(br.readLine()));
+
+        // 조교 명령 입력
+        for(int order=1; order<=trainerCount; order++) {
+            inputTrainerOrder(new StringTokenizer(br.readLine()));
         }
 
-        // 조교 지시 정보 입력
-        for(int index=0; index<saramCount; index++) {
-            st = new StringTokenizer(br.readLine());
-            int startIndex = Integer.parseInt(st.nextToken());
-            int endIndex = Integer.parseInt(st.nextToken());
-            int height = Integer.parseInt(st.nextToken());
-            jobs[startIndex] += height;
-            jobs[endIndex+1] += -height;
-        }
+        // 흙 파기
+        int currentHeightSum = 0;
+        for(int index=1; index<ground.length; index++) {
 
-        // 작업 수행
-        int currentHeight = 0;
-        for(int index=1; index<=areaSize; index++) {
+            // 명령이 있었던 경우
+            if(sum[index]!=0)
+                currentHeightSum += sum[index];
 
-            // 지시가 있는 구간인 경우
-            if(jobs[index]!=Integer.MAX_VALUE) {
-                currentHeight += jobs[index];
-            }
-
-            // 작업 수행
-            answer[index] = area[index]+currentHeight;
+            // 결과 저장
+            sb.append(ground[index]+currentHeightSum).append(" ");
         }
 
         // 결과 출력
-        for(int index=1; index<=areaSize; index++) {
-            sb.append(answer[index]).append(" ");
-        }
         System.out.println(sb.toString());
     }
 }
