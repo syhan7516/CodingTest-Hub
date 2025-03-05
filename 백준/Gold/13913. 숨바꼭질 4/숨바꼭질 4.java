@@ -29,6 +29,11 @@ public class Main {
             // 수빈이 현재 위치
             int current = queue.poll();
 
+            // 동생을 찾은 경우
+            if(current==K) {
+                return;
+            }
+
             // 수빈이가 갈 수 있는 위치
             int [] point = {current*2, current+1, current-1};
 
@@ -54,6 +59,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
         // 각 위치 입력
         st = new StringTokenizer(br.readLine());
@@ -77,8 +83,10 @@ public class Main {
             K = areaPath[K];
         }
 
-        System.out.print(N+" ");
+        sb.append(N).append(" ");
         while(!stack.isEmpty())
-            System.out.print(stack.pop()+" ");
+            sb.append(stack.pop()).append(" ");
+
+        System.out.println(sb.toString());
     }
 }
