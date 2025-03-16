@@ -1,79 +1,102 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
 
-    // 정점의 수, 간선의 수, 시작 노드
-    public static int v, e, start;
-    // 방문 배열
-    public static int visited[];
-    // 인접 리스트
-    public static ArrayList<ArrayList<Integer>> nodes;
-    // 큐
-    public static Queue<Integer> queue;
+    // 정점 개수, 간선 개수, 시작 정점, 순서
+    public static int nodeCount, edgeCount, startNode, order;
 
-    // bfs
-    static void bfs(int start) {
+    // 관계 정보 리스트
+    public static ArrayList<ArrayList<Integer>> relations;
+
+    // 방문 여부 배열
+    public static boolean[] visited;
+
+    // 순서 배열
+    public static int[] orders;
+
+    // 관계 확인 메서드
+    public static void solve() {
+
+        // 순서 배열 생성
+        order = 1;
+        orders = new int[nodeCount+1];
+
         // 큐 생성
-        queue = new LinkedList<>();
-        // 방문 체크, 방문 순서 체크, 큐에 삽입
-        int order = 1;
-        visited[start] = order;
-        order += 1;
-        queue.offer(start);
+        Queue<Integer> queue = new LinkedList<>();
 
-        // 큐가 빌 때까지 수행
+        // 방문 여부 배열 생성
+        visited = new boolean[nodeCount+1];
+
+        // 시작점 처리
+        visited[startNode] = true;
+        queue.offer(startNode);
+        orders[startNode] = 1;
+        order++;
+
+        // 탐색
         while(!queue.isEmpty()) {
-            // 인접 노드 확인할 노드꺼내기
-            int node = queue.poll();
-            // 오름차순으로 방문을 위한 정렬
-            Collections.sort(nodes.get(node));
-            // 인접 노드 확인
-            for(int n=0; n<nodes.get(node).size(); n++) {
-                int checkNode = nodes.get(node).get(n);
-                // 인접 노드가 미방문일 경우
-                if(visited[checkNode]==0) {
-                    visited[checkNode] = order;
-                    order += 1;
-                    queue.offer(checkNode);
+
+            // 현재 노드
+            int currentNode = queue.poll();
+
+            // 정렬
+            Collections.sort(relations.get(currentNode));
+
+            // 관계 확인
+            for(int index=0; index<relations.get(currentNode).size(); index++) {
+
+                // 연결 노드
+                int connectNode = relations.get(currentNode).get(index);
+
+                // 방문하지 않은 경우
+                if(!visited[connectNode]) {
+                    visited[connectNode] = true;
+                    queue.offer(connectNode);
+                    orders[connectNode] = order;
+                    order++;
                 }
             }
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
-        // 정점의 수, 간선의 수, 시작 노드 입력
-        v = Integer.parseInt(st.nextToken());
-        e = Integer.parseInt(st.nextToken());
-        start = Integer.parseInt(st.nextToken());
+        // 정점 개수, 간선 개수, 시작 정점 입력
+        st = new StringTokenizer(br.readLine());
+        nodeCount = Integer.parseInt(st.nextToken());
+        edgeCount = Integer.parseInt(st.nextToken());
+        startNode = Integer.parseInt(st.nextToken());
 
-        // 기본 생성 및 초기화
-        visited = new int[v+1];
-        nodes = new ArrayList<>();
-        for(int idx=0; idx<=v; idx++) {
-            nodes.add(new ArrayList<>());
-            visited[idx] = 0;
+        // 관계 정보 리스트 생성
+        relations = new ArrayList<>();
+        for(int index=0; index<=nodeCount; index++) {
+            relations.add(new ArrayList<>());
         }
 
-        // 노드 연결 정보 입력
-        for(int idx=0; idx<e; idx++) {
+        // 관게 정보 입력
+        for(int index=0; index<edgeCount; index++) {
             st = new StringTokenizer(br.readLine());
-            int startNode = Integer.parseInt(st.nextToken());
-            int endNode = Integer.parseInt(st.nextToken());
-            nodes.get(startNode).add(endNode);
-            nodes.get(endNode).add(startNode);
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            relations.get(from).add(to);
+            relations.get(to).add(from);
         }
 
-        // bfs 탐색
-        bfs(start);
+        // 관계 확인 및 결과 출력
+        solve();
+
+        // 결과 저장
+        for(int index=1; index<=nodeCount; index++) {
+            sb.append(orders[index]).append("\n");
+        }
 
         // 결과 출력
-        for(int idx=1; idx<=v; idx++) {
-            System.out.println(visited[idx]);
-        }
+        System.out.println(sb.toString());
     }
 }
