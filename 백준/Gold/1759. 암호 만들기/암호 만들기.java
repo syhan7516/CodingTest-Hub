@@ -1,71 +1,100 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-	
-	public static StringBuilder sb = new StringBuilder();
-	
-	// 알파벳 개수, 암호 길이
-	public static int alphaCnt, alphaLen;
-	// 알파벳 종류 배열
-	public static char alpha[];
-	
-	// 암호 만들기 메서드
-	static void solve(int cnt, int idx, int gat, int con, String letter) {
-		
-		
-		
-		// 암호가 만들어진 경우
-		if(cnt==alphaCnt) {
-			
-			// 최소 개수가 만족하는 경우
-			if(con>1 && gat>0) sb.append(letter).append("\n");
-			
-			return;
-		}
-		
-		// 아닌 경우
-		for(int i=idx; i<alpha.length; i++) {
-			
-			// 확인 문자
-			char curAlpha = alpha[i];
-			
-			// 모음
-			if(curAlpha=='a' || curAlpha=='e' || curAlpha=='i' || curAlpha=='o' || curAlpha=='u')
-				solve(cnt+1,i+1,gat+1,con,letter+alpha[i]);
-			// 자음
-			else 
-				solve(cnt+1,i+1,gat,con+1,letter+alpha[i]);
-		}
-	}
-	
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		
-		// 알파벳 개수, 암호 길이 입력
-		st = new StringTokenizer(br.readLine());
-		alphaCnt = Integer.parseInt(st.nextToken());
-		alphaLen = Integer.parseInt(st.nextToken());
-		
-		// 알파벳 종류 배열 생성
-		alpha = new char[alphaLen];
-		
-		// 알파벳 종류 입력
-		String line = br.readLine();
-		for(int i=0; i<alpha.length; i++) {
-			alpha[i] = line.charAt(i*2);
-		}
-		
-		// 문자 정렬
-		Arrays.sort(alpha);
-		
-		// 암호 만들기
-		solve(0,0,0,0,"");
-		
-		// 결과 출력
-		System.out.println(sb.toString());
-	}
+
+    // 문자 선택 수, 문자 개수
+    public static int selectCount, wordCount;
+
+    // 문자 저장 배열
+    public static char[] words;
+
+    // 선택된 문자 저장 리스트
+    public static ArrayList<Character> selectedWords;
+
+    // 최소 모음 확인 메서드
+    public static boolean isNotMoCount(int count) {
+        return count<1;
+    }
+
+    // 최소 자음 확인 메서드
+    public static boolean isNotJaCount(int count) {
+        return count<2;
+    }
+
+    // 모음 확인 메서드
+    public static boolean isMo(char word) {
+        return word == 'a' || word == 'e' || word == 'i' || word == 'o' || word == 'u';
+    }
+
+    // 선택된 문자 개수 확인 메서드
+    public static boolean isNotSelectCount(int count) {
+        return count!=selectCount;
+    }
+
+    // 문자 조합하기 메서드
+    public static void solve(int count, int selectedCount) {
+
+        // 문자가 모두 선택된 경우
+        if(count==wordCount) {
+
+            StringBuilder sb = new StringBuilder();
+
+            // 선택된 문자 개수 확인
+            if(isNotSelectCount(selectedCount)) return;
+
+            // 문자 확인
+            int moCount = 0;
+            int jaCount = 0;
+            for(int index=0; index<selectedWords.size(); index++) {
+                char word = selectedWords.get(index);
+                if(isMo(word)) moCount++;
+                else jaCount++;
+                sb.append(word);
+            }
+
+            // 최소 모음, 자음 개수 확인
+            if(isNotMoCount(moCount) || isNotJaCount(jaCount)) return;
+
+            // 결과 출력
+            System.out.println(sb.toString());
+            return;
+        }
+
+        // 문자 선택하기
+        selectedWords.add(words[count]);
+        solve(count+1, selectedCount+1);
+        selectedWords.remove(selectedWords.size()-1);
+        solve(count+1,selectedCount);
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        // 문자 선택 수, 문자 개수 입력
+        st = new StringTokenizer(br.readLine());
+        selectCount = Integer.parseInt(st.nextToken());
+        wordCount = Integer.parseInt(st.nextToken());
+
+        // 문자 저장 배열 생성
+        words = new char[wordCount];
+
+        // 문자 입력
+        st = new StringTokenizer(br.readLine());
+        for(int index=0; index<wordCount; index++) {
+            words[index] = st.nextToken().charAt(0);
+        }
+
+        // 정렬
+        Arrays.sort(words);
+
+        // 문자 조합하기
+        selectedWords = new ArrayList<>();
+        solve(0,0);
+    }
 }
