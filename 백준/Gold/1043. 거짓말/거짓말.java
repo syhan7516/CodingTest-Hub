@@ -1,120 +1,90 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Main {
+    public static ArrayList<Integer>[] party;
+    public static int[] parent;
 
-    // 사람의 수, 파티의 수, 진실을 아는 사람 수
-    public static int N, partyCnt, truthCnt;
-    // 대표 번호 테이블
-    public static int parent[];
-    // 파티 정보 리스트
-    public static ArrayList<ArrayList<Integer>> party;
-
-    // 결과
-    public static int result;
-
-    // Find 함수 정의
-    static int parentFind(int node) {
-        // 종료 조건
-        if(parent[node] == node)
-            return node;
-
-        // 대표 번호와 자신의 번호가 다를 경우
-        return parent[node] = parentFind(parent[node]);
-    }
-
-    // Union 함수 정의
-    static void union(int firNum, int secNum) {
-        int rootFirNum = parentFind(firNum);
-        int rootSecNum = parentFind(secNum);
-
-        // 작은 수를 가진 대표 번호의 집합에 속하기
-        if(rootFirNum<rootSecNum)
-            parent[rootSecNum] = rootFirNum;
-        else
-            parent[rootFirNum] = rootSecNum;
-    }
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
+        int n, m;
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer stk = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(stk.nextToken()); // 사람의 수
+        m = Integer.parseInt(stk.nextToken()); // 파티의 수
+        int k; // 진실을 아는 사람의 수
+        stk = new StringTokenizer(br.readLine());
+        k = Integer.parseInt(stk.nextToken());
+        int[] true_man = new int[k];
+        for (int i = 0; i < k; i++) {
+            true_man[i] = Integer.parseInt(stk.nextToken());
+        } // 진실을 아는 사람의 번호를 저장
 
-        // 사람의 수, 파티의 수 입력
-        N = Integer.parseInt(st.nextToken());
-        partyCnt = Integer.parseInt(st.nextToken());
-
-        // 진실을 아는 사람과 그 수 입력
-        st = new StringTokenizer(br.readLine());
-        truthCnt = Integer.parseInt(st.nextToken());
-
-        // 대표 번호 테이블 선언 & 초기화
-        parent = new int[N+2];
-        for(int p=0; p<=N+1; p++)
-            parent[p] = p;
-
-        // 진실을 아는 사람이 존재할 경우
-        if(truthCnt!=0) {
-            for(int t=0; t<truthCnt; t++) {
-                int num = Integer.parseInt(st.nextToken());
-                // 진실을 아는 사람 그룹
-                union(0,num);
+        parent = new int[n + 1];
+        party = new ArrayList[m];
+        for (int i = 0; i < m; i++) { // 파티의 수 만큼
+            party[i] = new ArrayList<>();
+            stk = new StringTokenizer(br.readLine());
+            int party_size = Integer.parseInt(stk.nextToken());
+            for (int j = 0; j < party_size; j++) {
+                party[i].add(Integer.parseInt(stk.nextToken()));
             }
         }
 
-        // 파티 정보 입력
-        party = new ArrayList<>();
-        for(int a=0; a<partyCnt; a++) {
-
-            // 해당 파티 인원 수 입력
-            st = new StringTokenizer(br.readLine());
-            int entranceCnt = Integer.parseInt(st.nextToken());
-            party.add(new ArrayList<>());
-
-            // 해당 파티 참여 인원 입력
-            for(int b=0; b<entranceCnt; b++) {
-                int h = Integer.parseInt(st.nextToken());
-                party.get(a).add(h);
-
-                // 진실을 아는 사람인지 확인
-                union(N+1,h);
-            }
-
-            // 집합 초기화
-            parent[N+1] = N+1;
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
         }
-
-        // 모든 참여자 재확인
-        for(int p=1; p<=N; p++)
-            parentFind(p);
-
-        // 파티 확인
-        for(int a=0; a<party.size(); a++) {
-
-            // 진실을 아는 사람 포함 여부
+        for (int i = 0; i < m; i++) {
+            int first_man = party[i].get(0);
+            for (int j = 1; j < party[i].size(); j++) {
+                union(first_man, party[i].get(j));
+            } // 각각의 파티에 참석한 인원들은 같은 집합으로 분류함
+        }
+        // parent 배열을 순회하며 진실을 아는 사람들과 다른 집합으로 분류되어 있다면
+        // 해당 사람들의 개수를 더해서 출력하면 됨
+        int cnt = 0;
+        for (int i = 0; i < m; i++) {
+            int leader = party[i].get(0);
             boolean flag = true;
-
-            // 각 파티 확인
-            for(int b=0; b<party.get(a).size(); b++) {
-
-                // 각 파티 인원 확인
-                int h = party.get(a).get(b);
-
-                // 진실을 아는 사람이 존재할 경우
-                if(parent[h]==0) {
+            for (int j = 0; j < k; j++) {
+                if (isitsame(leader, true_man[j])) {
+                    // 진실을 아는 사람과 같은 집합에 속한다면
                     flag = false;
                     break;
                 }
             }
-
-            // 진실을 아는 사람이 없을 경우
-            if(flag) {
-                result += 1;
+            if (flag) {
+                // 진실을 아는 사람과 같은 집합에 속하지 않는다면
+                // 해당 파티에서는 거짓말을 해도 들키지 않음
+                cnt++;
             }
         }
+        System.out.println(cnt);
+    }
 
-        // 결과 출력
-        System.out.println(result);
+    public static void union(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a != b) {
+            // a 와 b 가 다른 집합에 속한다면
+            parent[b] = a; // 같은 집합으로 묶어주기
+        }
+    }
+
+    public static int find(int a) {
+        if (parent[a] == a) {
+            // a 의 부모가 a 이면(root)
+            return a;
+        } else {
+            return parent[a] = find(parent[a]);
+        }
+    }
+
+    public static boolean isitsame(int a, int b) {
+        if (find(a) == find(b)) { // 같은 집합에 속한다면 true
+            return true;
+        } else return false;
     }
 }
