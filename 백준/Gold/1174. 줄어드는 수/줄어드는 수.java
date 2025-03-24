@@ -27,8 +27,7 @@ public class Main {
 
         // 끝까지 온 경우
         if(point==nums.length) {
-            if(!decreasingNums.contains(num))
-                decreasingNums.add(num);
+            decreasingNums.add(num);
             return;
         }
 
@@ -41,8 +40,8 @@ public class Main {
     public static long checkResult() {
 
         // 목표 순서가 없는 경우
-        if(decreasingNums.size()<order) return -1;
-        else return decreasingNums.get(order-1);
+        if(decreasingNums.size()<=order) return -1;
+        else return decreasingNums.get(order);
     }
 
     public static void main(String[] args) throws IOException {
