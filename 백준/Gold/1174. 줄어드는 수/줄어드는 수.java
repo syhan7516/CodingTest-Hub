@@ -16,7 +16,7 @@ public class Main {
     public static int[] nums = {9,8,7,6,5,4,3,2,1,0};
 
     // 초기화 메서드
-    public static void inintialize() throws IOException{
+    public static void initialize() throws IOException{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         order = Integer.parseInt(br.readLine());
         decreasingNums = new ArrayList<>();
@@ -33,10 +33,8 @@ public class Main {
         }
 
         // 순서대로 선택하기
-        for(int index=point; index<nums.length; index++) {
-            solve(index+1,num*10+nums[index]);
-            solve(index+1,num);
-        }
+        solve(point+1,num*10+nums[point]);
+        solve(point+1,num);
     }
 
     // 결과 확인 메서드
@@ -50,7 +48,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         // 초기화
-        inintialize();
+        initialize();
 
         // 목표 순서 찾기
         solve(0,0);
