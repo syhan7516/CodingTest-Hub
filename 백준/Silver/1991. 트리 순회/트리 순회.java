@@ -1,66 +1,115 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+// 노드 클래스
+class Node {
+    char data;
+    Node left;
+    Node right;
+
+    public Node(char data) {
+        this.data = data;
+    }
+
+    public Node search(char data) {
+
+        // 노드를 찾은 경우
+        if(this.data==data) {
+            return this;
+        }
+
+        Node node = null;
+
+        if(this.left != null) {
+            node = this.left.search(data);
+            if(node != null) return node;
+        }
+
+        if(this.right != null) {
+            node = this.right.search(data);
+            if(node != null) return node;
+        }
+
+        return null;
+    }
+
+    public void insertLeft(Node node) {
+        this.left = node;
+    }
+
+    public void insertRight(Node node) {
+        this.right = node;
+    }
+
+    public void preOrder(Node node) {
+
+        // 노드가 없는 경우
+        if(node==null || node.data=='.')
+            return;
+
+        System.out.print(node.data);
+        preOrder(node.left);
+        preOrder(node.right);
+    }
+
+    public void inOrder(Node node) {
+
+        // 노드가 없는 경우
+        if(node==null || node.data=='.')
+            return;
+
+        inOrder(node.left);
+        System.out.print(node.data);
+        inOrder(node.right);
+    }
+
+    public void postOrder(Node node) {
+
+        // 노드가 없는 경우
+        if(node==null || node.data=='.')
+            return;
+
+        postOrder(node.left);
+        postOrder(node.right);
+        System.out.print(node.data);
+    }
+}
 
 public class Main {
 
     // 노드 개수
-    public static int nodeCnt;
-    // 노드 연결 관계 배열 ([부모][자식])
-    public static int tree[][] = new int[27][3];
+    public static int nodeCount;
 
-    // 전위 순회
-    static void preorder(int node) {
-        if(node==0)
-            return;
-
-        System.out.print((char)('A'+node-1));
-        preorder(tree[node][0]);
-        preorder(tree[node][1]);
-    }
-
-    // 중위 순회
-    static void inorder(int node) {
-        if(node==0)
-            return;
-
-        inorder(tree[node][0]);
-        System.out.print((char)('A'+node-1));
-        inorder(tree[node][1]);
-    }
-
-    // 후위 순회
-    static void postorder(int node) {
-        if(node==0)
-            return;
-
-        postorder(tree[node][0]);
-        postorder(tree[node][1]);
-        System.out.print((char)('A'+node-1));
-    }
-
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        // 노드 개수 입력
-        nodeCnt = Integer.parseInt(br.readLine());
-        // 노드 입력 & 연결
-        for(int idx=1; idx<=nodeCnt; idx++) {
-            String relLetter = br.readLine();
-            char parent = relLetter.charAt(0);
-            char left = relLetter.charAt(2);
-            char right = relLetter.charAt(4);
+        StringTokenizer st;
 
-            // 자식이 있는 경우
-            if(left!='.')
-                tree[parent-'A'+1][0] = left-'A'+1;
-            if(right!='.')
-                tree[parent-'A'+1][1] = right-'A'+1;
+        // 노드 개수 입력
+        nodeCount = Integer.parseInt(br.readLine());
+
+        // 노드 정보 입력
+        Node root = new Node('A');
+        for(int nodeOrder=0; nodeOrder<nodeCount; nodeOrder++) {
+            st = new StringTokenizer(br.readLine());
+            char standard = st.nextToken().charAt(0);
+            char left = st.nextToken().charAt(0);
+            char right = st.nextToken().charAt(0);
+            root.search(standard).insertLeft(new Node(left));
+            root.search(standard).insertRight(new Node(right));
         }
 
-        preorder(1);
+        // 전위 순회
+        root.preOrder(root);
         System.out.println();
-        inorder(1);
+
+        // 중위 순회
+        root.inOrder(root);
         System.out.println();
-        postorder(1);
+
+        // 후위 순회
+        root.postOrder(root);
+        System.out.println();
     }
 }
