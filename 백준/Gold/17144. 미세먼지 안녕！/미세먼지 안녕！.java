@@ -165,7 +165,7 @@ public class Main {
             operatorCleaner();
         }
 
-        // 먼지 확인
+        // 결과 출력
         System.out.println(getCountDust());
     }
 }
