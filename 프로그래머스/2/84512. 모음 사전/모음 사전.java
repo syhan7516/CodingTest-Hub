@@ -1,45 +1,51 @@
+import java.util.*;
+
 class Solution {
     
+    // 문자 길이
+    public static final int WORD_LEN = 5;
+    
     // 결과
-    public static int result, answer;
+    public static int answer;
     
-    // 찾은 여부
-    public static boolean flag;
+    // 문자 저장 리스트
+    public static ArrayList<String> words;
     
-    // 문자 종류
-    public static char[] kinds = {'A','E','I','O','U'};
+    // 선택 가능한 문자 배열
+    public static String[] alpha = {"","A","E","I","O","U"};
     
-    // 사전 확인 메서드
-    static void solve(int cnt, String voca, String word) {
+    // 메서드
+    static void solve(int selectedCount, String word) {
         
-        // 범위를 넘은 경우
-        if(cnt>5) {
-            result--;
+        // 문자가 다 선택된 경우
+        if(selectedCount==WORD_LEN) {
+            
+            // 문자가 리스트에 포함되지 않은 경우
+            if(!words.contains(word)) {
+                
+                // 저장
+                words.add(word);
+            }
             return;
         }
         
-        // 종료 조건
-        if(voca.equals(word)) {
-            answer = result;
-            return;
-        }
-        
-        // 사전 확인
-        for(int i=0; i<5; i++) {
-            result++;
-            solve(cnt+1,voca+kinds[i],word);
+        // 알파벳 차례로 확인
+        for(int alphaIndex=0; alphaIndex<alpha.length; alphaIndex++) {
+            solve(selectedCount+1,word+alpha[alphaIndex]);
         }
     }
     
     public int solution(String word) {
-    
-        // 순번, 결과
-        result = 0;
-        answer = 0;
         
-        // 사전 확인
-        solve(0,"",word);
+        // 문자 저장 리스트 생성
+        words = new ArrayList<>();
         
-        return answer;
+        // 완전 탐색 수행
+        solve(0,"");
+        
+        // 문자 정렬
+        Collections.sort(words);
+        
+        return words.indexOf(word);
     }
 }
