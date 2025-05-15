@@ -14,15 +14,15 @@ public class Main {
         // 물병 개수, 옮길 수 있는 개수 입력
         st = new StringTokenizer(br.readLine());
         int bottleCount = Integer.parseInt(st.nextToken());
-        int movePossibleBottleCount = Integer.parseInt(st.nextToken());
+        int portableBottleCount = Integer.parseInt(st.nextToken());
 
-        // 합친 물병 개수
-        int count = Integer.bitCount(bottleCount);
-        
-        // 옮길 수 있는 개수를 만족할 때까지 물 구매하기
-        while(count>movePossibleBottleCount) {
+        // 물병 개수
+        int currentBottleCount = Integer.bitCount(bottleCount);
+
+        // 물병 구매하기
+        while(currentBottleCount>portableBottleCount) {
             bottleCount++;
-            count = Integer.bitCount(bottleCount);
+            currentBottleCount = Integer.bitCount(bottleCount);
             answer++;
         }
 
