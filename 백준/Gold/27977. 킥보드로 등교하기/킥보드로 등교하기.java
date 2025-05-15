@@ -5,75 +5,90 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    // 결과, 총 거리, 충전소 개수, 충전 횟수
-    public static int answer, totalDistance, chargerCount, chargePossibleCount;
+    // 결과, 학교 위치, 충전소 개수, 최대 방문 횟수
+    public static int answer, destination, stationCount, maxVisitCount;
 
-    // 충전소 위치 저장 배열
-    public static int chargerPositions[];
+    // 위치 배열
+    public static int[] points;
 
-    // 값 확인 메서드
-    public static boolean getRequiredChargerCount(int charger) {
+    // 등교 확인 메서드
+    public static boolean goToSchool(int capacity) {
 
-        // 현재 위치, 필요 충전소 개수
-        int index = 0;
-        int currentPosition = 0;
-        int requiredChargerCount = 0;
+        // 현재 위치
+        int currentPointIndex = 0;
 
-        // 충전소 위치 확인
-        while(currentPosition<totalDistance) {
+        // 충전소 방문 횟수
+        int visitCount = 0;
 
-            // 이동 가능한 거리
-            int possibleDistance = currentPosition + charger;
+        // 4. 학교 도착할 때까지 반복
+        while(currentPointIndex<points.length) {
 
-            // 학교에 도착한 경우
-            if(possibleDistance>=totalDistance)
-                return true;
+            // 이동 여부
+            boolean isMoved = false;
 
-            // 갈 수 있는 가장 먼 충전소 탐색
-            int maxDistanceCharger = -1;
-            while(index<chargerCount && chargerPositions[index]<=possibleDistance) {
-                maxDistanceCharger = index;
-                index++;
+            // 현재 위치에서 이동 가능한 위치
+            int maxCanMoveDistance = points[currentPointIndex] + capacity;
+
+            // 학교 도착한 경우
+            if(maxCanMoveDistance>=points[points.length-1]) break;
+
+            // 이동 가능한 충전소 위치 확인
+            for(int pointIndex=currentPointIndex+1; pointIndex<points.length; pointIndex++) {
+
+                // 다음 위치로 이동 불가능한 경우
+                if(points[pointIndex]>maxCanMoveDistance) {
+
+                    // 한 번도 이동을 못한 경우
+                    if(!isMoved) {
+                        return false;
+                    }
+
+                    break;
+                }
+
+                // 다음 위치로 이동 가능한 경우
+                isMoved = true;
+                currentPointIndex = pointIndex;
             }
 
-            // 다음 충전소까지 이동이 불가능한 경우
-            if(maxDistanceCharger==-1)
-                return false;
-
-            // 이동
-            currentPosition = chargerPositions[maxDistanceCharger];
-            requiredChargerCount++;
-
-            // 방문 가능한 충전소 개수가 넘은 경우
-            if(requiredChargerCount>chargePossibleCount)
-                return false;
+            // 충전소 방문 횟수 증가
+            visitCount++;
         }
 
-        return false;
+        // 충전소 방문 횟수가 기준 이상인 경우
+        if(visitCount<=maxVisitCount) {
+            answer = capacity;
+            return true;
+        }
+
+        // 충전소 방문 횟수가 많은 경우
+        else return false;
     }
 
     // 최소 배터리 용량 구하기 메서드
     public static void solve() {
 
-        // 범위 설정
+        // 시작 범위 설정
         int left = 1;
-        int right = totalDistance;
-        answer = Integer.MAX_VALUE;
+        int right = points[points.length-1];
 
-        // 탐색
+        // 배터리 용량 탐색
         while(left<=right) {
 
-            // 값 설정
+            // 배터리 용량 설정
             int mid = (left+right)/2;
 
-            // 필요 충전소 개수가 같거나 더 적은 경우
-            if(getRequiredChargerCount(mid)) {
+            // 등교하기
+            if(goToSchool(mid)) {
+
+                // 충전 횟수가 같거나 더 적은 경우
                 right = mid-1;
-                answer = Math.min(answer,mid);
             }
 
-            // 충전소 개수가 더 많은 경우
-            else left = mid+1;
+            // 등교를 못하거나, 정해진 횟수보다 충전이 많은 경우
+            else {
+                left = mid+1;
+            }
         }
     }
 
@@ -81,20 +96,24 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        // 총 거리, 충전소 개수, 충전 횟수 입력
+        // 학교 위치, 충전소 개수, 최대 방문 횟수 입력
         st = new StringTokenizer(br.readLine());
-        totalDistance = Integer.parseInt(st.nextToken());
-        chargerCount = Integer.parseInt(st.nextToken());
-        chargePossibleCount = Integer.parseInt(st.nextToken());
+        destination = Integer.parseInt(st.nextToken());
+        stationCount = Integer.parseInt(st.nextToken());
+        maxVisitCount = Integer.parseInt(st.nextToken());
 
-        // 충전소 위치 배열 생성
-        chargerPositions = new int[chargerCount];
+        // 위치 배열 생성
+        points = new int[stationCount +2];
 
-        // 충전소 위치 저장
+        // 충전소 위치 입력
         st = new StringTokenizer(br.readLine());
-        for(int position=0; position<chargerCount; position++) {
-            chargerPositions[position] = Integer.parseInt(st.nextToken());
+        for(int pointIndex = 1; pointIndex<= stationCount; pointIndex++) {
+            points[pointIndex] = Integer.parseInt(st.nextToken());
         }
+
+        // 집, 학교 위치 입력
+        points[0] = 0;
+        points[points.length-1] = destination;
 
         // 최소 배터리 용량 구하기
         solve();
