@@ -1,63 +1,81 @@
 import java.util.*;
 
 class Solution {
-    public int solution(int[] queue1, int[] queue2) {
-        int answer = -1;
+    
+    // 최대 연산 횟수
+    public static int maxOperationCount;
+    
+    // 큐 원소 합
+    public static long firstQueueSum, secondQueueSum;
+    
+    // 원소 저장 큐
+    public static Queue<Integer> firstQueue, secondQueue;
+    
+    // 두 큐의 합 같게 하기 메서드
+    public static int solve() {
         
-        // 큐 크기
-        int size = queue1.length;
+        // 최대 연산 횟수 설정
+        maxOperationCount = firstQueue.size()+secondQueue.size()+1;
         
-        // 큐의 합
-        long sum = 0;
-        long first = 0;
-        long second = 0;
+        // 현재 연산 횟수
+        int currentOperationCount = 0;
         
-        // 큐 생성
-        Queue<Integer> Q1 = new LinkedList<>();
-        Queue<Integer> Q2 = new LinkedList<>();
-        
-        // 큐 요소 저장
-        for(int i=0; i<size; i++) {
-            
-            Q1.offer(queue1[i]);
-            Q2.offer(queue2[i]);
-            
-            first += queue1[i];
-            second += queue2[i];
+        // 두 큐의 합이 동일한 경우
+        if(firstQueueSum==secondQueueSum) {
+            return currentOperationCount;
         }
         
-        sum = (first+second)/2;
-        
-        int cnt = 0;
-        int num = 0;
-        
-        size = (size)*4;
-        
-        while(first!=second) {
+        // 연산 수행
+        while(currentOperationCount<=maxOperationCount 
+              && !firstQueue.isEmpty() && !secondQueue.isEmpty()) {
             
-            if(size==0) break;
-            
-            if(first==second) break;
-            
-            else if(first<second) {
-                num = Q2.poll();
-                second -= num;
-                first += num;
-                Q1.offer(num);
+            // 두 큐의 합 비교
+            if(firstQueueSum>secondQueueSum) {
+                int firstQueueElement = firstQueue.poll();
+                secondQueue.offer(firstQueueElement);
+                firstQueueSum -= firstQueueElement;
+                secondQueueSum += firstQueueElement;
             }
+            
             else {
-                num = Q1.poll();
-                first -= num;
-                second += num;
-                Q2.offer(num);
+                int secondQueueElement = secondQueue.poll();
+                firstQueue.offer(secondQueueElement);
+                secondQueueSum -= secondQueueElement;
+                firstQueueSum += secondQueueElement;
             }
             
-            cnt++;
-            size--;
+            // 연산 횟수 증가
+            currentOperationCount++;
+            
+            // 두 큐의 합이 동일한 경우
+            if(firstQueueSum==secondQueueSum) {
+                return currentOperationCount;
+            }
         }
         
-        if(first==second) answer = cnt;
+        return -1;
+    }
+    
+    
+    public int solution(int[] queue1, int[] queue2) {
         
-        return answer;
+        // 원소 저장 큐 생성
+        firstQueue = new LinkedList<>();
+        secondQueue = new LinkedList<>();
+        
+        // 각 원소 큐에 저장
+        for(int queueIndex=0; queueIndex<queue1.length; queueIndex++) {
+            
+            // 첫 번째 큐에 삽입 및 합하기
+            firstQueue.offer(queue1[queueIndex]);
+            firstQueueSum += queue1[queueIndex];
+            
+            // 두 번째 큐에 삽입 및 합하기
+            secondQueue.offer(queue2[queueIndex]);
+            secondQueueSum += queue2[queueIndex];
+        }
+        
+        // 두 큐의 합 같게 하기
+        return solve();
     }
 }
