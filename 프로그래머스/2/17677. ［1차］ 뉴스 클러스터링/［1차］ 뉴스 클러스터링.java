@@ -1,75 +1,92 @@
 import java.util.*;
 
 class Solution {
+    
+    // 분리된 원소 저장 리스트
+    public static ArrayList<String> A, B;
+
+    // 특수 문자, 숫자, 공백 등 포함 여부 메서드
+    public static boolean hasSpecialCharacters(String letter) {
+        if(letter.charAt(0)<'A' || letter.charAt(0)>'Z') return true;
+        if(letter.charAt(1)<'A' || letter.charAt(1)>'Z') return true;
+        return false;
+    }
+
+    // 문자열 분리 메서드
+    public static ArrayList<String> separateStringToList(String word) {
+        
+        ArrayList<String> elements = new ArrayList<>();
+
+        // 두 문자씩 잘라서 확인
+        for(int wordIndex=0; wordIndex<word.length()-1; wordIndex++) {
+            
+            String letter = word.substring(wordIndex,wordIndex+2).toUpperCase();
+            
+            // 특수 문자, 숫자, 공백 등 포함된 경우
+            if(hasSpecialCharacters(letter)) continue;
+            
+            // 요소 추가
+            elements.add(letter);
+        }
+
+        return elements;
+    }
+
+    // 차집합 개수 구하기 메서드
+    public static int getDifferenceCount() {
+
+        ArrayList<String> C = new ArrayList<>(A);
+
+        // B 집합 요소 삭제
+        for(String element: B) {
+            C.remove(element);
+        }
+
+        return C.size();
+    }
+
+    // 교집합 개수 구하기 메서드
+    public static int getInterSectionCount(int differenceCount) {
+        return A.size() - differenceCount;
+    }
+
+    // 합집합 개수 구하기 메서드
+    public static int getUnionCount(int differenceCount) {
+        return B.size() + differenceCount;
+    }
+
+    // 유사도 구하기 메서드
+    public static int getSimilarity(int interSectionCount, int unionCount) {
+
+        // 둘 다 공집합인 경우
+        if(A.isEmpty() && B.isEmpty()) {
+            return 65536;
+        }
+
+        // 아닌 경우
+        else {
+
+            double answer = (double)interSectionCount/unionCount;
+
+            return (int)Math.floor(answer*65536);
+        }
+    }
+    
     public int solution(String str1, String str2) {
         
-        // 결과
-        int answer = 0;
-        
-        // 합, 교 개수
-        int h = 0;
-        int g = 0;
-        
-        // 문자열 저장 해시 맵
-        HashMap<String,Integer> map = new HashMap<>();
-        
-        // 소문자로 변환
-        str1 = str1.toLowerCase();
-        str2 = str2.toLowerCase();
-        
-        // 문자열 자르기
-        for(int i=0; i<str1.length()-1; i++) {
-            
-            // 자른 문자열
-            String cut = str1.substring(i,i+2);
-            
-            // 문자인지 확인 (97~122)
-            if(cut.charAt(0) < 97 || cut.charAt(0) > 122) continue;
-            if(cut.charAt(1) < 97 || cut.charAt(1) > 122) continue;
-            
-            // 맵에 저장
-            map.put(cut,map.getOrDefault(cut,0)+1);
-            
-            // 합집합 수 증가
-            h++;
-        }
-        
-        // 문자열 자르기
-        for(int i=0; i<str2.length()-1; i++) {
-            
-            // 자른 문자열
-            String cut = str2.substring(i,i+2);
-            
-            // 문자인지 확인 (97~122)
-            if(cut.charAt(0) < 97 || cut.charAt(0) > 122) continue;
-            if(cut.charAt(1) < 97 || cut.charAt(1) > 122) continue;
-            
-            // 교집합인 경우
-            if(map.containsKey(cut) && map.get(cut)>0) {
-                g++;
-                map.put(cut,map.get(cut)-1);
-            }
-            
-            // 겹치지 않을 경우
-            else {
-                System.out.println("h : "+cut);
-                h++;
-            }
-        }
-        
-        // 임시 변수
-        double result = 0;
-        
-        // 둘 다 0일 경우
-        if(g==0 && h==0) result = 1;
-    
-        // 아닐 경우
-        else result = (double)g/h;
-        
-        System.out.println(g+":"+h);
-        
-        answer = (int)(result*65536);
+        A = new ArrayList<>(separateStringToList(str1.toUpperCase()));
+        B = new ArrayList<>(separateStringToList(str2.toUpperCase()));
 
-        return answer;
+        // 차집합 개수 구하기
+        int differenceCount = getDifferenceCount();
+
+        // 교집합 개수 구하기
+        int intersectionCount = getInterSectionCount(differenceCount);
+
+        // 합집합 개수 구하기
+        int unionCount = getUnionCount(differenceCount);
+
+        // 결과 출력
+        return getSimilarity(intersectionCount,unionCount);
     }
 }
