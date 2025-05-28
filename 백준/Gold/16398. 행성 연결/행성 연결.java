@@ -72,7 +72,7 @@ public class Main {
         answer += flow.value;
 
         // 플로우 확인
-        while(!queue.isEmpty() && connectFlowCount<planetCount-1) {
+        while(connectFlowCount<planetCount-1) {
 
             // 확인 플로우
             flow = queue.poll();
