@@ -1,38 +1,31 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
         // 숫자 입력
-        String letters = br.readLine();
+        String number = br.readLine();
 
-        // 숫자 분리
-        int numSum = 0;
-        int nums[] = new int[10];
-        for(int idx=0; idx<letters.length(); idx++) {
-            int number = Integer.parseInt(letters.substring(idx,idx+1));
-            nums[number] += 1;
-            numSum += number;
+        // 한자리로 분해
+        char[] nums = number.toCharArray();
+
+        // 정렬
+        Arrays.sort(nums);
+
+        // 확인
+        int sum = 0;
+        for(int numIndex=nums.length-1; numIndex>=0; numIndex--) {
+            sum += nums[numIndex]-'0';
+            sb.append(nums[numIndex]);
         }
 
-        // 30의 배수 확인
-        if(letters.contains("0") && numSum%3==0) {
-            // 30의 배수인 경우
-            for(int n=9; n>=0; n--) {
-                while(true) {
-                    if(nums[n]==0)
-                        break;
-
-                    System.out.print(n);
-                    nums[n] -= 1;
-                }
-            }
-        }
-        // 아닌 경우
-        else
-            System.out.println(-1);
+        // 결과 출력
+        if(sum%3==0 && nums[0]=='0') System.out.println(sb.toString());
+        else System.out.println(-1);
     }
 }
