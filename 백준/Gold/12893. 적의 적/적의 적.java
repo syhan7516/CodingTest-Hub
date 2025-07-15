@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -9,37 +8,28 @@ public class Main {
     // 결과, 사람 수, 관계 수
     public static int answer, saramCount, relationCount;
 
-    // 관계 정보 리스트
-    public static ArrayList<ArrayList<Integer>> relations;
+    // 적 정보 저장 배열
+    public static int[] enemy;
 
-    // 방문 여부 배열
-    public static int[] visited;
+    // 그룹 번호 저장 배열
+    public static int[] parent;
 
-    // 관계 확인 메서드
-    public static void solve(int saram, int isFriend) {
-
-        // 관계 순회
-        for(int index=0; index<relations.get(saram).size(); index++) {
-            
-            // 적 확인
-            int someone = relations.get(saram).get(index);
-
-            // 방문하지 않은 경우
-            if(visited[someone]==0) {
-                visited[someone] = isFriend;
-                solve(someone,isFriend*-1);
-            }
-
-            // 방문한 경우
-            else {
-                
-                // 서로 적이지만 친구인 경우
-                if(visited[saram] == visited[someone]) {
-                    answer = 0;
-                    return;
-                }
-            }
+    // find
+    public static int find(int saram) {
+        if(parent[saram] == saram) {
+            return saram;
         }
+
+        return parent[saram] = find(parent[saram]);
+    }
+
+    // union
+    public static void union(int a, int b) {
+        a = find(a);
+        b = find(b);
+
+        if(a<b) parent[b] = a;
+        else parent[a] = b;
     }
 
     public static void main(String[] args) throws IOException {
@@ -51,33 +41,46 @@ public class Main {
         saramCount = Integer.parseInt(st.nextToken());
         relationCount = Integer.parseInt(st.nextToken());
 
-        // 관계 정보 리스트 생성 및 초기화
-        relations = new ArrayList<>();
-        for(int saram=0; saram<=saramCount; saram++) {
-            relations.add(new ArrayList<>());
+        // 그룹 배열 생성 및 초기화
+        parent = new int[saramCount+1];
+        for(int index=1; index<=saramCount; index++) {
+            parent[index] = index;
         }
 
+        // 적 정보 저장 배열 생성
+        enemy = new int[saramCount+1];
+
         // 관계 정보 입력
+        answer = 1;
         for(int relation=0; relation<relationCount; relation++) {
             st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
-            relations.get(a).add(b);
-            relations.get(b).add(a);
-        }
 
-        // 방문 여부 배열 생성 초기화
-        visited = new int[saramCount+1];
+            // 적인데 같은 그룹인 경우
+            if(find(a) == find(b)) {
+                answer = 0;
+                break;
+            }
 
-        // 관계 확인
-        answer = 1;
-        for(int saram=1; saram<=saramCount; saram++) {
-            
-            // 방문하지 않은 경우
-            if(visited[saram] == 0) {
-                visited[saram] = 1;
-                solve(saram,-1);
-                if(answer == 0) break;
+            // a가 적이 없는 경우
+            if(enemy[a] == 0) {
+                enemy[a] = b;
+            }
+
+            // a가 적이 있는 경우
+            else {
+                union(enemy[a],b);
+            }
+
+            // b가 적이 없는 경우
+            if(enemy[b] == 0) {
+                enemy[b] = a;
+            }
+
+            // b가 적이 있는 경우
+            else {
+                union(enemy[b],a);
             }
         }
 
