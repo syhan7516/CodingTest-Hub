@@ -1,119 +1,130 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-// 노드 클래스
-class Node implements Comparable<Node> {
-	int node;
-	int value;
-	
-	public Node(int to, int value) {
-		this.node = to;
-		this.value = value;
-	}
-	
-	public int compareTo(Node other) {
-		return this.value-other.value;
-	}
+// 간선 클래스
+class Edge {
+    int node;
+    int distance;
+
+    public Edge(int node, int distance) {
+        this.node = node;
+        this.distance = distance;
+    }
 }
 
 public class Main {
-	
-	// 상수 설정
-	public static final int INF = (int)1e9;
-	// 정점의 개수, 간선의 개수, 시작점
-	public static int v,e,start;
-	// 그래프 리스트
-	public static ArrayList<ArrayList<Node>> graph;
-	// 최단 거리 배열
-	public static int path[];
+
+    // 거리 기본 값
+    public static final int BASIC_DISTANCE = (int)1e9;
+
+    // 정점 개수, 간선 개수, 시작 정점
+    public static int nodeCount, edgeCount, startNode;
+
+    // 거리 배열
+    public static int[] path;
+
+    // 연결 관계 리스트
+    public static ArrayList<ArrayList<Edge>> relations;
+
+    // 거리 우선 순위 큐
+    public static PriorityQueue<Edge> queue;
+
     // 방문 여부 배열
-    public static boolean visited[];
-	
-	// 최단 거리 구하기 메서드
-	static void dijkstra() {
-		
-		// 최단 간선 정렬을 위한 우선 순위 큐 생성
-		PriorityQueue<Node> pQueue = new PriorityQueue<>();
-		
+    public static boolean[] visited;
+
+    // 최단 거리 탐색 메서드
+    public static void solve() {
+
         // 방문 여부 배열 생성
-        visited = new boolean[v+1];
-        
-		// 시작점 처리
-		path[start] = 0;
-		pQueue.offer(new Node(start,path[start]));
-		
-		// 큐가 빌 때까지 반복 수행
-		while(!pQueue.isEmpty()) {
-			
-			// 확인 할 노드
-			Node curNode = pQueue.poll();
-            
-            // 이미 방문한 경우
-			if(visited[curNode.node]) continue;
-            
-			// 해당 노드와 인접한 노드 확인
-			for(int i=0; i<graph.get(curNode.node).size(); i++) {
-				
-				// 연결  노드, 연결 정점, 연결 가중치
-				Node connectNode = graph.get(curNode.node).get(i);
-				
-				// 최단 경로 배열 갱신
-				if(path[connectNode.node]>curNode.value+connectNode.value) {
-					path[connectNode.node] = curNode.value+connectNode.value;
-				}	
-				
-				// 큐에 저장
-				pQueue.offer(new Node(connectNode.node,path[connectNode.node]));
-			}
-            
+        visited = new boolean[nodeCount+1];
+
+        // 거리 우선 순위 큐 생성
+        queue = new PriorityQueue<>(
+                (a, b) -> a.distance - b.distance
+        );
+
+        // 시작 지점 처리
+        path[startNode] = 0;
+        queue.offer(new Edge(startNode, path[startNode]));
+
+        // 탐색 수행
+        while(!queue.isEmpty()) {
+
+            // 확인 간선
+            Edge edge = queue.poll();
+
+            // 이미 방문한 노드인 경우
+            if(visited[edge.node]) continue;
+
             // 방문 처리
-            visited[curNode.node] = true;
-		}		
-	}
-	
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		
-		// 정점, 간선 개수 입력
-		st = new StringTokenizer(br.readLine());
-		v = Integer.parseInt(st.nextToken());
-		e = Integer.parseInt(st.nextToken());
-		
-		// 시작점 입력
-		start = Integer.parseInt(br.readLine());
-		
-		// 그래프 리스트 생성
-		graph = new ArrayList<>();
-		
-		// 그래프 초기화
-		for(int i=0; i<=v; i++)
-			graph.add(new ArrayList<>());
-		
-		// 최단 경로 배열 초기화
-		path = new int[v+1];
-		Arrays.fill(path,INF);
-		
-		// 간선 정보 입력
-		for(int i=0; i<e; i++) {
-			st = new StringTokenizer(br.readLine());
-			int from = Integer.parseInt(st.nextToken());
-			int to = Integer.parseInt(st.nextToken());
-			int value = Integer.parseInt(st.nextToken());
-			graph.get(from).add(new Node(to,value));
-		}
-		
-		// 최단 거리 구하기
-		dijkstra();
-		 
-		// 결과 출력
-		for(int i=1; i<=v; i++) {
-			if(path[i]==INF) System.out.println("INF");
-			else System.out.println(path[i]);
-		}
-	}
+            visited[edge.node] = true;
+
+            // 연결된 간선 확인
+            for(int index=0; index<relations.get(edge.node).size(); index++) {
+                Edge connectedEdge = relations.get(edge.node).get(index);
+
+                // 이미 최단 거리 확인 완료된 노드인 경우
+                if(visited[connectedEdge.node]) continue;
+
+                // 거리 확인
+                if(path[connectedEdge.node] > path[edge.node] + connectedEdge.distance) {
+                    path[connectedEdge.node] = path[edge.node] + connectedEdge.distance;
+                    queue.offer(new Edge(connectedEdge.node, path[connectedEdge.node]));
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
+
+        // 정점, 간선 개수 입력
+        st = new StringTokenizer(br.readLine());
+        nodeCount = Integer.parseInt(st.nextToken());
+        edgeCount = Integer.parseInt(st.nextToken());
+
+        // 관계 정보 리스트 생성 및 초기화
+        relations = new ArrayList<>();
+        for(int index=0; index<=nodeCount; index++) {
+            relations.add(new ArrayList<>());
+        }
+
+        // 거리 배열 생성 및 초기화
+        path = new int[nodeCount+1];
+        for(int index=1; index<=nodeCount; index++) {
+            path[index] = BASIC_DISTANCE;
+        }
+
+        // 시작 정점 입력
+        startNode = Integer.parseInt(br.readLine());
+
+        // 간선 정보 입력
+        for(int index=0; index<edgeCount; index++) {
+            st = new StringTokenizer(br.readLine());
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            int distance = Integer.parseInt(st.nextToken());
+            relations.get(from).add(new Edge(to, distance));
+        }
+
+        // 최단 거리 탐색
+        solve();
+
+        // 결과 저장
+        for(int node=1; node<=nodeCount; node++) {
+            if(path[node] == BASIC_DISTANCE) {
+                sb.append("INF").append('\n');
+            }
+            else sb.append(path[node]).append("\n");
+        }
+
+        // 결과 출력
+        System.out.println(sb.toString());
+    }
 }
