@@ -1,108 +1,113 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-class ThingPoint {
-    private int y;
-    private int x;
-
-    public ThingPoint(int y, int x) {
-        this.y = y;
-        this.x = x;
-    }
-
-    public int getY() {
-        return this.y;
-    }
-
-    public int getX() {
-        return this.x;
-    }
-
-    public void setPoint(int y, int x) {
-        this.y = y;
-        this.x = x;
-    }
-}
-
 public class Main {
 
-    // 이동 가능여부 확인 함수
-    static boolean moveCheck(int y, int x) {
-        if(y<1 || y>8 || x<1 || x>8)
-            return false;
-        return true;
+    // 움직임 횟수, 킹 위치, 돌 위치
+    public static int moveCount, kingPositionY, kingPositionX, stonePositionY, stonePositionX;
+
+    // 보드
+    public static int[][] board;
+
+    // 방향 벡터 - R, L, B, T, RT, LT, RB, LB
+    public static int[] dy = {0,0,-1,1,1,1,-1,-1};
+    public static int[] dx = {1,-1,0,0,1,-1,1,-1};
+
+    // 범위 확인 메서드
+    public static boolean isNotMoveToNextPosition(int row, int col) {
+        return row<0 || row>7 || col<0 || col>7;
     }
 
-    public static void main(String[] args) throws Exception {
+    // 킹 이동 메서드
+    public static void solve(int moveType) {
+
+        // 이동 위치
+        int nextY = kingPositionY + dy[moveType];
+        int nextX = kingPositionX + dx[moveType];
+
+        // 범위 확인
+        if(isNotMoveToNextPosition(nextY,nextX)) return;
+
+        // 해당 위치에 돌이 있는 경우
+        if(nextY == stonePositionY && nextX == stonePositionX) {
+
+            // 돌 위치 이동이 불가능한 경우
+            if(isNotMoveToNextPosition(nextY + dy[moveType], nextX + dx[moveType])) return;
+
+            // 돌 위치 갱신
+            stonePositionY = nextY + dy[moveType];
+            stonePositionX = nextX + dx[moveType];
+        }
+
+        // 킹 위치 갱신
+        kingPositionY = nextY;
+        kingPositionX = nextX;
+    }
+
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
 
-        // 킹의 이동 정보
-        String kingDir[] = {"R","L","B","T","RT","LT","RB","LB"};
-        int kingMove[][] = {{0,1},{0,-1},{-1,0},{1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
-
-        // 보드판
-        int board[][] = new int[9][9];
-
-        // 킹의 위치, 돌의 위치, 이동 횟수 입력
+        // 킹 위치, 돌 위치, 움직임 횟수 입력
         st = new StringTokenizer(br.readLine());
-        String kingPoint = st.nextToken();
-        String stonePoint = st.nextToken();
-        int moveCnt = Integer.parseInt(st.nextToken());
+        String kingPosition = st.nextToken();
+        String stonePosition = st.nextToken();
+        moveCount = Integer.parseInt(st.nextToken());
 
-        int kingY = kingPoint.charAt(1)-'0';
-        int kingX = kingPoint.charAt(0)-64;
-        ThingPoint king = new ThingPoint(kingY,kingX);
+        // 보드 생성
+        board = new int[9][9];
 
-        int stoneY = stonePoint.charAt(1)-'0';
-        int stoneX = stonePoint.charAt(0)-64;
-        ThingPoint stone = new ThingPoint(stoneY,stoneX);
+        // 위치 정수화
+        kingPositionX = kingPosition.charAt(0) - 'A';
+        kingPositionY = kingPosition.charAt(1) - '1';
+        stonePositionX = stonePosition.charAt(0) - 'A';
+        stonePositionY = stonePosition.charAt(1) - '1';
 
-        // 말 움직이기
-        while(moveCnt>0) {
+        // 움직임 입력
+        for(int index=0; index<moveCount; index++) {
+            String move = br.readLine();
+            int moveType = -1;
 
-            // 종료 조건
-            if(moveCnt==0)
-                break;
-
-            // 이동 정보 입력 & 찾기
-            int moveNum = -1;
-            String moveKey = br.readLine();
-            for(int m=0; m<kingDir.length; m++) {
-                if(kingDir[m].equals(moveKey)) {
-                    moveNum = m;
+            // 움직임 확인
+            switch(move) {
+                case "R":
+                    moveType = 0;
                     break;
-                }
+                case "L":
+                    moveType = 1;
+                    break;
+                case "B":
+                    moveType = 2;
+                    break;
+                case "T":
+                    moveType = 3;
+                    break;
+                case "RT":
+                    moveType = 4;
+                    break;
+                case "LT":
+                    moveType = 5;
+                    break;
+                case "RB":
+                    moveType = 6;
+                    break;
+                case "LB":
+                    moveType = 7;
+                    break;
+                default:
+                    break;
             }
 
-            // 이동 가능 여부 확인
-            int nextKingY = king.getY()+kingMove[moveNum][0];
-            int nextKingX = king.getX()+kingMove[moveNum][1];
-
-            // 킹이 이동 가능한 경우
-            if(moveCheck(nextKingY,nextKingX)) {
-                // 돌과 같은 곳인 경우
-                if(nextKingY==stone.getY() && nextKingX==stone.getX()) {
-                    int nextStoneY = stone.getY()+kingMove[moveNum][0];
-                    int nextStoneX = stone.getX()+kingMove[moveNum][1];
-                    // 돌이 이동 가능한 경우
-                    if(moveCheck(nextStoneY,nextStoneX)) {
-                        king.setPoint(nextKingY,nextKingX);
-                        stone.setPoint(nextStoneY,nextStoneX);
-                    }
-                }
-                // 돌과 같은 위치가 아닌 경우
-                else
-                    king.setPoint(nextKingY,nextKingX);
-            }
-
-            // 이동 횟수 감소
-            moveCnt--;
+            // 킹 이동
+            solve(moveType);
         }
 
         // 결과 출력
-        System.out.println((char)(king.getX()+64)+""+king.getY());
-        System.out.println((char)(stone.getX()+64)+""+stone.getY());
+        sb.append((char)(kingPositionX+'A')).append(kingPositionY+1).append('\n');
+        sb.append((char)(stonePositionX+'A')).append(stonePositionY+1);
+        System.out.println(sb.toString());
     }
 }
