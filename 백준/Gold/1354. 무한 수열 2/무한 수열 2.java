@@ -18,7 +18,7 @@ public class Main {
     }
 
     public static long get(long key) {
-        if(!map.containsKey(key)) put(key);
+        if(map.get(key) == null) put(key);
         return map.get(key);
     }
 
