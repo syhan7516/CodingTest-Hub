@@ -1,36 +1,39 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        // 크기 입력
-        int blockSize = Integer.parseInt(br.readLine());
+    // 타일 채우기 메서드
+    public static int solve(int size) {
 
-        // 타일링 크기 홀수인 경우
-        if(blockSize%2!=0) {
-            System.out.println(0);
-            return;
-        }
-        
-        // DP 테이블
-        int DP[] = new int[31];
-        
-        // 테이블 초기화
+        // DP 배열 생성
+        int[] DP = new int[size+1];
+
+        // 크기가 홀수인 경우
+        if(size%2 != 0) return 0;
+
+        // 배열 초기 설정
         DP[0] = 1;
         DP[1] = 0;
         DP[2] = 3;
-        
-        // 타일링 수행
-        for(int t=4; t<=30; t+=2) {
-            // 기본 타일 : 매 짝수 번마다 이전의 3배
-            DP[t] = DP[t-2]*3;
-            for(int p=t-4; p>=0; p-=2)
-                DP[t] = DP[t]+(DP[p]*2);
+
+        // 타일 채우기
+        for(int a=4; a<=size; a+=2) {
+            DP[a] = DP[a-2] * DP[2];
+            for(int b=a-4; b>=0; b-=2) {
+                DP[a] = DP[a] + (DP[b] * 2);
+            }
         }
-        
-        // 결과 출력
-        System.out.println(DP[blockSize]);
+
+        return DP[size];
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        // 크기 입력
+        int size = Integer.parseInt(br.readLine());
+
+        // 타일 채우기
+        System.out.println(solve(size));
     }
 }
